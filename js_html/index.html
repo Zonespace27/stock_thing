@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+  <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script> -->
+  <script type="text/javascript" src="js/everything.js"></script>
+  <script>build_companies()</script>
+  <style>
+    body {
+        margin: 0;
+    }
+
+    .head_row {
+        border: 5px solid gray; 
+    }
+    
+    .head_row:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+    
+    .bottom_row {
+        border: 5px solid gray; 
+    }    
+
+    .bottom_row:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+
+    .top_column {
+        float: left;
+        width: 25%;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        text-align: center;
+    }
+
+    .bottom_column {
+        float: left;
+        width: 50%;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        text-align: center;
+    }
+    
+    .main_ticker {
+        height: 400px;
+        width: 60%;
+        outline: 2px solid orange;
+        float: left;
+    }
+    
+    .secondary_tickers {
+        outline: 2px solid blue;
+        height: 400px;
+        float: right;
+        width: 40%; 
+    }
+    
+    .secondary_tickers:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+    
+    .secondary_ticker {
+        float: top;
+        height: 20%;
+        text-align: center;
+        background-color: red;
+    }
+
+    .information_wrapper {
+        height: 400px;
+        width: 70%;
+        outline: 2px solid orange;
+        float: right;
+    }
+
+    .information_body {
+        padding: 8px
+    }
+
+    .information_tab {
+        outline: 2px solid blue;
+        height: 400px;
+        float: left;
+        width: 30%; 
+    }
+    
+    .information_tab:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+    
+    .information_section {
+        float: top;
+        height: 20%;
+        text-align: center;
+        background-color: red;
+    }
+
+    .information_button {
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+
+    .secondary_ticker_divider {
+        outline: 1px solid black;
+    }
+
+    .secondary_ticker_info {
+      float: left;
+      background-color: yellowgreen;
+      height: 100%;
+      padding-left: 4px;
+      padding-right: 4px;
+      width: 12%;
+      max-width: 12%;
+    }
+
+    .secondary_ticker_info_name {
+      float: top;
+      height: 50%
+    }
+
+    .stock_interface {
+        display: auto;
+    }
+
+    .information_interface {
+      display: none;
+    }
+
+    .main_ticker_info {
+      height: 10%;
+      background-color: aqua;
+    }
+
+    .main_ticker_info_section {
+      float: left;
+      width: 25%;
+      height: 100%;
+      text-align: center;
+      background-color: aquamarine;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="head_row">
+    <div class="top_column" style="background-color:#ddd;">
+        <button style="border: none" onclick="headrow_info()">Information</button>
+    </div>
+    <div class="top_column" style="background-color:#ddd;">
+      <button style="border: none" onclick="headrow_trade()">Trading</button>
+    </div>
+    <div class="top_column" style="background-color:#ddd;">
+      <button style="border: none">News</button>
+    </div>
+    <div class="top_column" style="background-color:#ddd;">
+      <button style="border: none">Save/Load</button>
+    </div>
+  </div>
+
+  <!-- The div for the information tab -->
+  <div class="information_interface" id="information_interface">
+    <div class="information_tab">
+      <div class="information_section">
+        <button class="information_button" id="info_button_1" onclick="info_button_1_press()">
+          1: Basics
+        </button>
+      </div>
+      <div class="information_section">
+        <button class="information_button" id="info_button_2" onclick="info_button_2_press()">
+          2: Empty
+        </button>
+      </div>
+      <div class="information_section">
+        <button class="information_button" id="info_button_3" onclick="info_button_3_press()">
+          3: Game
+        </button>
+      </div>
+      <div class="information_section">
+        <button class="information_button" id="info_button_4" onclick="info_button_4_press()">
+          4: Empty
+        </button>
+      </div>
+      <div class="information_section">
+        <button class="information_button" id="info_button_5" onclick="info_button_5_press()">
+          5: Empty
+        </button>
+      </div>
+    </div>
+    <div class="information_wrapper">
+      <div class="information_body" id="info_body">
+        Hello
+      </div>
+    </div>
+  </div>
+
+  <!-- The div for the trading tab -->
+  <div class="stock_interface" id="trade_interface">
+    <div class="main_ticker">
+      <div class="main_ticker_info">
+        <div class="main_ticker_info_section" id="main_ticker_info_name">
+          Fizzbuzz Inc. (FZBZ)
+        </div>
+        <div class="main_ticker_info_section" id="main_ticker_info_minmax">
+          Minimum / Maximum
+        </div>
+        <div class="main_ticker_info_section" id="main_ticker_info_shares">
+          Shares Owned
+        </div>
+        <div class="main_ticker_info_section" id="main_ticker_info_value">
+          Share Value
+        </div>
+      </div>
+      <canvas id="base" style="width: 100%; height: 100%"></canvas>
+      <script>
+        initChart("base", "FZBZ");
+      </script>
+    </div>
+    <div class="secondary_tickers">
+      <div class="secondary_ticker">
+        <div class="secondary_ticker_info">
+          <div class="secondary_ticker_info_name">
+            Foobar Ltd.
+          </div>
+          <div>
+            FBR
+          </div>
+        </div>
+        <canvas id="base2" style="width: 100%; max-width: 86.5%; height: 100%"></canvas>
+        <script>
+          initChart("base2", "FBR");
+        </script>
+      </div>
+      <div class="secondary_ticker_divider"></div>
+      <div class="secondary_ticker">
+        <div class="secondary_ticker_info">
+          <div class="secondary_ticker_info_name">
+            Foobar Ltd.
+          </div>
+          <div>
+            FBR
+          </div>
+        </div>
+        <canvas id="base3" style="width: 100%; max-width: 86.5%; height: 100%"></canvas>
+        <script>
+          initChart("base3");
+        </script>
+      </div>
+      <div class="secondary_ticker_divider"></div>
+      <div class="secondary_ticker">
+        <div class="secondary_ticker_info">
+          <div class="secondary_ticker_info_name">
+            Foobar Ltd.
+          </div>
+          <div>
+            FBR
+          </div>
+        </div>
+        <canvas id="base4" style="width: 100%; max-width: 86.5%; height: 100%"></canvas>
+        <script>
+          initChart("base4");
+        </script>
+      </div>
+      <div class="secondary_ticker_divider"></div>
+      <div class="secondary_ticker">
+        <div class="secondary_ticker_info">
+          <div class="secondary_ticker_info_name">
+            Foobar Ltd.
+          </div>
+          <div>
+            FBR
+          </div>
+        </div>
+        <canvas id="base5" style="width: 100%; max-width: 86.5%; height: 100%"></canvas>
+        <script>
+          initChart("base5");
+        </script>
+      </div>
+      <div class="secondary_ticker_divider"></div>
+      <div class="secondary_ticker">
+        <div class="secondary_ticker_info">
+          <div class="secondary_ticker_info_name">
+            Foobar Ltd.
+          </div>
+          <div>
+            FBR
+          </div>
+        </div>
+        <canvas id="base6" style="width: 100%; max-width: 86.5%; height: 100%"></canvas>
+        <script>
+          initChart("base6");
+        </script> 
+      </div>
+    </div>
+  </div>
+  <div class="bottom_row">
+    <div class="bottom_column" style="background-color:#ddd; text-align: left">
+      <div style="padding-left: 20%" id="date_time">
+        9:30 AM, October 18, 2023
+      </div>
+    </div>
+    <div class="bottom_column" style="background-color:#ddd; text-align: right">
+      <div style="padding-right: 20%">
+        Current Funds: $0,000.00
+      </div>
+    </div>
+  </div>
+</body>
