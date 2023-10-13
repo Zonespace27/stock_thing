@@ -54,13 +54,34 @@ class Company {
      */
     this.chart_data = [];
     this.linked_chart = null;
+    /**
+     * The lowest value this stock has been on a given trading day
+     */
+    this.minimum_daily_value = 0;
+    /**
+     * The lowest value this stock has been on a given trading day
+     */
+    this.maximum_daily_value = 0;
+
+    owned_stocks[this.ticker] = 0;
   }
   on_day_tick() {
-    this.current_price = sin_equation(
+    let new_price = sin_equation(
       this.sin_multiplier,
       this.period_divider,
       this.y_axis_offset
     );
+    if (new_price > this.maximum_daily_value) {
+      this.maximum_daily_value = new_price;
+    }
+    if (
+      new_price < this.minimum_daily_value ||
+      this.minimum_daily_value === 0
+    ) {
+      this.minimum_daily_value = new_price;
+    }
+
+    this.current_price = new_price;
     if (this.chart_data.length >= max_data_points) {
       this.chart_data.shift();
     }
@@ -76,14 +97,12 @@ class Company {
       this.linked_chart.update();
     }
     if (this === primary_ticker_company) {
-      let element = document.getElementById("info_button_1");
-      element.textContent = "1: Basics";
-      element = document.getElementById("info_button_2");
-      element.textContent = "2: Empty";
-      element = document.getElementById("info_button_3");
-      element.textContent = "3: Game";
-      element = document.getElementById("info_button_4");
-      element.textContent = "4: Empty";
+      let element = document.getElementById("main_ticker_info_minmax");
+      element.textContent = `$${this.minimum_daily_value} / $${this.maximum_daily_value}`;
+      element = document.getElementById("main_ticker_info_shares");
+      element.textContent = `${owned_stocks[this.ticker]} Shares Owned`;
+      element = document.getElementById("main_ticker_info_value");
+      element.textContent = `$${this.current_price}`;
     }
   }
 }
@@ -160,30 +179,6 @@ function sin_equation(
       1000
   );
 }
-/*
-function update_chart(chart) {
-  if (!chart.data || !chart.data.datasets || !chart.data.datasets[0].data)
-    return;
-
-  let chart_data = chart.data.datasets[0].data;
-
-  if (chart_data.length >= max_data_points) {
-    chart_data.shift();
-  }
-  chart_data.push(sin_equation());
-  chart.update();
-}
-
-function update_charts() {
-  let values = Object.values(charts);
-  values.forEach(function (chart) {
-    update_chart(chart);
-  });
-}*/
-/*
-var interval = setInterval(function () {
-  start_trading_day();
-}, 500);*/
 
 /*
  * Math functions
@@ -310,6 +305,58 @@ function update_date_time() {
 }
 
 /*
+ * User data
+ */
+
+/**
+ * Dict of ticker : share amount that the user owns
+ */
+var owned_stocks = {};
+
+/**
+ * The current amount of money the user has
+ */
+var cash = 0;
+
+function adjust_cash(amount) {
+  if (!amount) {
+    return;
+  }
+  cash = Math.max(0, cash + amount);
+}
+
+function adjust_shares(company_ticker, amount = 1) {
+  owned_stocks[company_ticker] = Math.max(
+    0,
+    owned_stocks[company_ticker] + amount
+  );
+}
+
+function buy_shares(company_ticker, amount = 1) {
+  if (!company_ticker) {
+    return;
+  }
+  let company = ticker_to_company[company_ticker];
+  if (cash < company.current_price * amount) {
+    return;
+  }
+  adjust_cash(-(company.current_price * amount));
+  adjust_shares(company_ticker, amount);
+}
+
+function sell_shares(company_ticker, amount = 1) {
+  if (!company_ticker) {
+    return;
+  }
+  let company = ticker_to_company[company_ticker];
+  if (owned_stocks[company_ticker] < amount) {
+    amount = owned_stocks[company_ticker];
+  }
+  adjust_shares(company_ticker, -amount);
+  adjust_cash(company.current_price * amount);
+}
+
+/*
  * UI button interactions
  */
 
@@ -317,6 +364,8 @@ function update_date_time() {
  * String ID of the currently focused page
  */
 var current_page = "";
+
+// Header buttons
 
 function headrow_trade() {
   let element = document.getElementById("trade_interface");
@@ -330,6 +379,51 @@ function headrow_info() {
   element.style.display = "none";
   element = document.getElementById("information_interface");
   element.style.display = "block";
+}
+
+// Confirmation button pop-up code
+
+function dim_screen() {
+  let element = document.getElementById("dimmer");
+  element.style.display = "block";
+}
+
+function undim_screen() {
+  let element = document.getElementById("dimmer");
+  element.style.display = "block";
+}
+
+function set_buy_confirmation() {
+  calculate_buy_confirmation();
+  let element = document.getElementById("buy_sell_confirmation");
+  element.style.display = "block";
+}
+
+function calculate_buy_confirmation() {
+  let element = document.getElementById("buy_sell_confirmation");
+}
+
+// Buy/sell buttons
+
+function buy_button_1_press() {
+  if (!primary_ticker_company) {
+    return;
+  }
+  buy_shares(primary_ticker_company.ticker, 1);
+}
+
+function buy_button_amount_press() {
+  if (!primary_ticker_company) {
+    return;
+  }
+  buy_shares(primary_ticker_company.ticker, 1);
+}
+
+function sell_button_1_press() {
+  if (!primary_ticker_company) {
+    return;
+  }
+  sell_shares(primary_ticker_company.ticker, 1);
 }
 
 // Info buttons
