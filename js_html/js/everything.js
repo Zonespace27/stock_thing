@@ -22,14 +22,43 @@ const company_data = [
   {
     company_name: "Fizzbuzz Inc.",
     ticker: "FZBZ",
-    y_axis_offset: 1,
-    sin_multiplier: 1,
-    period_divider: 1,
+    y_axis_offset: 1000,
+    sin_multiplier: 750,
+    period_divider: 1.5,
+    sin_progression: 0.5,
   },
   {
     company_name: "Foobar Ltd.",
     ticker: "FBR",
-    y_axis_offset: 1,
+    y_axis_offset: 1000,
+    sin_multiplier: 3,
+    period_divider: 2,
+  },
+  {
+    company_name: "Weston-Yamada Corp.",
+    ticker: "WY",
+    y_axis_offset: 1000,
+    sin_multiplier: 3,
+    period_divider: 2,
+  },
+  {
+    company_name: "Macrosoft Inc.",
+    ticker: "MCSF",
+    y_axis_offset: 1000,
+    sin_multiplier: 3,
+    period_divider: 2,
+  },
+  {
+    company_name: "BetterBrick Utd.",
+    ticker: "BB",
+    y_axis_offset: 1000,
+    sin_multiplier: 3,
+    period_divider: 2,
+  },
+  {
+    company_name: "FauxShow Inc.",
+    ticker: "FSW",
+    y_axis_offset: 1000,
     sin_multiplier: 3,
     period_divider: 2,
   },
@@ -41,13 +70,15 @@ class Company {
     ticker = "EMPTY",
     y_axis_offset = 1,
     sin_multiplier = 1,
-    period_divider = 1
+    period_divider = 1,
+    sin_progression = 0.1
   ) {
     this.company_name = company_name;
     this.ticker = ticker;
-    this.y_axis_offset = y_axis_offset; // in the formula y=m*sin(ox)+mn, represents n
-    this.sin_multiplier = sin_multiplier; // in the formula y=m*sin(ox)+mn, represents m
-    this.period_divider = period_divider; // in the formula y=m*sin(ox)+mn, represents o
+    this.y_axis_offset = y_axis_offset; // in the formula y=m*sin(ox)+n, represents n
+    this.sin_multiplier = sin_multiplier; // in the formula y=m*sin(ox)+n, represents m
+    this.period_divider = period_divider; // in the formula y=m*sin(ox)+n, represents o
+    this.sin_progression = sin_progression; // How much to progress sin_value by
     this.current_price = 0;
     /**
      * The last [max_data_points] pieces of historical price data
@@ -63,14 +94,15 @@ class Company {
      */
     this.maximum_daily_value = 0;
 
+    /**
+     * The current value put through sin_equation. Starts as a random int between 0 and 1 rounded to the nearest 10th place
+     */
+    this.sin_value = Math.round(10 * Math.random()) / 10;
+
     owned_stocks[this.ticker] = 0;
   }
   on_day_tick() {
-    let new_price = sin_equation(
-      this.sin_multiplier,
-      this.period_divider,
-      this.y_axis_offset
-    );
+    let new_price = sin_equation(this);
     if (new_price > this.maximum_daily_value) {
       this.maximum_daily_value = new_price;
     }
@@ -96,14 +128,6 @@ class Company {
       this.linked_chart.data.datasets[0].data = this.chart_data;
       this.linked_chart.update();
     }
-    if (this === primary_ticker_company) {
-      let element = document.getElementById("main_ticker_info_minmax");
-      element.textContent = `$${this.minimum_daily_value} / $${this.maximum_daily_value}`;
-      element = document.getElementById("main_ticker_info_shares");
-      element.textContent = `${owned_stocks[this.ticker]} Shares Owned`;
-      element = document.getElementById("main_ticker_info_value");
-      element.textContent = `$${this.current_price}`;
-    }
   }
 }
 
@@ -113,7 +137,8 @@ function create_company(data_dictionary) {
     data_dictionary.get("ticker"),
     data_dictionary.get("y_axis_offset"),
     data_dictionary.get("sin_multiplier"),
-    data_dictionary.get("period_divider")
+    data_dictionary.get("period_divider"),
+    data_dictionary.get("sin_progression")
   );
   company_list.push(company);
   ticker_to_company[company.ticker] = company;
@@ -127,6 +152,39 @@ function build_companies() {
 
 function update_company_prices() {
   company_list.forEach((company) => company.on_day_tick());
+}
+
+function update_main_ticker_info() {
+  let element = document.getElementById("main_ticker_info_minmax");
+  element.textContent = `$${primary_ticker_company.minimum_daily_value} / $${primary_ticker_company.maximum_daily_value}`;
+  element = document.getElementById("main_ticker_info_shares");
+  element.textContent = `${
+    owned_stocks[primary_ticker_company.ticker]
+  } Shares Owned`;
+  element = document.getElementById("main_ticker_info_value");
+  element.textContent = `$${primary_ticker_company.current_price}`;
+  if (primary_ticker_company.current_price > cash) {
+    element = document.getElementById("main_ticker_button_buy1");
+    element.disabled = true;
+    element = document.getElementById("main_ticker_button_buyamount");
+    element.disabled = true;
+  } else {
+    element = document.getElementById("main_ticker_button_buy1");
+    element.disabled = false;
+    element = document.getElementById("main_ticker_button_buyamount");
+    element.disabled = false;
+  }
+  if (parseInt(owned_stocks[primary_ticker_company.ticker]) <= 0) {
+    element = document.getElementById("main_ticker_button_sell1");
+    element.disabled = true;
+    element = document.getElementById("main_ticker_button_sellamount");
+    element.disabled = true;
+  } else {
+    element = document.getElementById("main_ticker_button_sell1");
+    element.disabled = false;
+    element = document.getElementById("main_ticker_button_sellamount");
+    element.disabled = false;
+  }
 }
 
 /*
@@ -145,7 +203,7 @@ function initChart(chart_id, ticker = "", primary_ticker = false) {
       labels: xValues,
       datasets: [
         {
-          data: [300, 700, 2000, 5000, 6000, 4000, 2000, 1000, 200, 100],
+          data: [300, 700, 2000, 1000, 2000, 2000, 2000, 1000, 200, 100],
           borderColor: "blue",
           fill: false,
         },
@@ -165,18 +223,22 @@ function initChart(chart_id, ticker = "", primary_ticker = false) {
     } else {
       secondary_ticker_companies.push(company);
     }
+    let element = document.getElementById(`st_info_name_${chart_id}`);
+    if (element) {
+      element.textContent = company.company_name;
+      element = document.getElementById(`st_info_ticker_${chart_id}`);
+      element.textContent = company.ticker;
+    }
   }
 }
 
-function sin_equation(
-  sin_multiplier = 1,
-  period_divider = 1,
-  y_axis_offset = 1
-) {
+function sin_equation(company) {
+  company.sin_value += company.sin_progression;
   return Math.trunc(
-    (sin_multiplier * Math.sin(Date.now() * period_divider) +
-      y_axis_offset * sin_multiplier) *
-      1000
+    (company.sin_multiplier *
+      Math.sin(company.sin_value * company.period_divider) +
+      company.y_axis_offset * (Math.round(10 * (0.5 + Math.random())) / 10)) *
+      1
   );
 }
 
@@ -223,14 +285,77 @@ function pretty_time() {
   return `${split_hour_time[0]}:${minutes} ${am_pm}, ${current_month} ${current_day}, ${current_year}`;
 }
 
+function pretty_cash() {
+  let final_string = cash.toLocaleString();
+  final_string = final_string.concat(".00");
+  return final_string;
+}
+
+// Time stuff
+/**
+ * Dict of "month" : days in month. Leap years do not exist.
+ */
+var month_to_days = {
+  January: 31,
+  February: 28,
+  March: 31,
+  April: 30,
+  May: 31,
+  June: 30,
+  July: 31,
+  August: 31,
+  September: 30,
+  October: 31,
+  November: 30,
+  December: 31,
+};
+
+function advance_day() {
+  current_day++;
+  if (current_day > month_to_days[current_month]) {
+    advance_month();
+    return;
+  }
+  update_date_time();
+}
+
+function advance_month() {
+  let months = Object.keys(month_to_days);
+  let month_number = months.indexOf(current_month) + 1;
+  if (month_number >= 12) {
+    advance_year();
+    return;
+  }
+  current_day = 1;
+  current_month = months[month_number];
+  update_date_time();
+}
+
+function advance_year() {
+  current_day = 1;
+  current_month = "January";
+  current_year++;
+  update_date_time();
+}
+
 /*
  * Trading day tick
  */
 
 /**
+ * How much cash the user is starting with today
+ */
+var starting_cash = 0;
+
+/**
  * Ref to the interval object for the trading day
  */
 var day_interval;
+
+/**
+ * If the trading day is currently going
+ */
+var day_in_progress = false;
 
 /**
  * The time to start at. The stock market opens at 9:30 AM weekdays.
@@ -240,7 +365,7 @@ var start_time = hours_to_minutes(9.5);
 /**
  * The time to end at. The stock market closes at 4:00 PM weekdays.
  */
-var end_time = hours_to_minutes(16);
+var end_time = hours_to_minutes(10);
 
 /**
  * How much time to advance per tick
@@ -272,23 +397,29 @@ var current_year = 2023;
  */
 var time_per_tick = seconds_to_ms(2);
 
-start_trading_day();
-
 function start_trading_day() {
   current_time = start_time;
+  starting_cash = cash;
+  day_in_progress = true;
+  start_interval();
+}
+
+function end_trading_day() {
+  day_in_progress = false;
+  clearInterval(day_interval);
+  set_day_end_report(true);
+}
+
+function start_interval() {
   day_interval = setInterval(function () {
     on_day_tick();
   }, time_per_tick);
 }
 
-function end_trading_day() {
-  clearInterval(day_interval);
-}
-
 function on_day_tick() {
   advance_time();
   update_company_prices();
-  //update_charts();
+  update_main_ticker_info();
   if (current_time >= end_time) {
     end_trading_day();
   }
@@ -316,19 +447,25 @@ var owned_stocks = {};
 /**
  * The current amount of money the user has
  */
-var cash = 0;
+var cash = 15000;
 
 function adjust_cash(amount) {
   if (!amount) {
     return;
   }
   cash = Math.max(0, cash + amount);
+  update_cash();
+}
+
+function update_cash() {
+  let element = document.getElementById("cash_count");
+  element.textContent = `Current Funds: $${pretty_cash()}`;
 }
 
 function adjust_shares(company_ticker, amount = 1) {
   owned_stocks[company_ticker] = Math.max(
     0,
-    owned_stocks[company_ticker] + amount
+    parseFloat(owned_stocks[company_ticker]) + parseFloat(amount)
   );
 }
 
@@ -383,24 +520,179 @@ function headrow_info() {
 
 // Confirmation button pop-up code
 
+/**
+ * How many shares the user is looking to buy/sell currently
+ */
+var share_buy_sell_amount = 0;
+
+const CONFIRM_BUY = "buy";
+const CONFIRM_SELL = "sell";
+
+/**
+ * If the user is looking to buy or sell with the current confirmation menu
+ */
+var buy_or_sell_confirmation_menu = CONFIRM_BUY;
+
 function dim_screen() {
   let element = document.getElementById("dimmer");
   element.style.display = "block";
+  if (day_in_progress) {
+    clearInterval(day_interval); // we pause the game during anything that would dim the main screen
+  }
 }
 
 function undim_screen() {
   let element = document.getElementById("dimmer");
-  element.style.display = "block";
+  element.style.display = "none";
+  if (day_in_progress) {
+    start_interval(); // todo: this will start you off at the full 5s again
+  }
 }
 
-function set_buy_confirmation() {
-  calculate_buy_confirmation();
-  let element = document.getElementById("buy_sell_confirmation");
-  element.style.display = "block";
+function set_day_end_report(on = true) {
+  if (on) {
+    dim_screen();
+    let element = document.getElementById("day_end_report_funds");
+    if (cash >= starting_cash) {
+      element.textContent = `Money Earned: $${cash - starting_cash}`;
+      element.style.color = "green";
+    } else {
+      element.textContent = `Money Lost: $${cash - starting_cash}`;
+      element.style.color = "red";
+    }
+    element = document.getElementById("day_end_report");
+    element.style.display = "block";
+  } else {
+    undim_screen();
+    let element = document.getElementById("day_end_report");
+    element.style.display = "none";
+  }
+}
+
+function day_end_report_continue() {
+  advance_day();
+  set_day_end_report(false);
+}
+
+function set_buy_confirmation(on = true) {
+  if (on) {
+    calculate_buy_confirmation();
+    set_share_buy_sell_amount(0);
+    dim_screen();
+    buy_or_sell_confirmation_menu = CONFIRM_BUY;
+    let element = document.getElementById("buy_sell_confirmation_question");
+    element.textContent = `How many shares of ${primary_ticker_company.ticker} would you like to purchase?`;
+    element = document.getElementById("buy_sell_confirmation");
+    element.style.display = "block";
+  } else {
+    let element = document.getElementById("buy_sell_confirmation");
+    element.style.display = "none";
+    undim_screen();
+  }
+}
+
+function set_sell_confirmation(on = true) {
+  if (on) {
+    calculate_sell_confirmation();
+    set_share_buy_sell_amount(0);
+    dim_screen();
+    buy_or_sell_confirmation_menu = CONFIRM_SELL;
+    let element = document.getElementById("buy_sell_confirmation_question");
+    element.textContent = `How many shares of ${primary_ticker_company.ticker} would you like to sell?`;
+    element = document.getElementById("buy_sell_confirmation");
+    element.style.display = "block";
+  } else {
+    let element = document.getElementById("buy_sell_confirmation");
+    element.style.display = "none";
+    undim_screen();
+  }
 }
 
 function calculate_buy_confirmation() {
-  let element = document.getElementById("buy_sell_confirmation");
+  let maximum_buy_amount = Math.max(
+    0,
+    Math.trunc(cash / primary_ticker_company.current_price)
+  );
+  let element = document.getElementById("buy_sell_slider");
+  element.max = maximum_buy_amount;
+  element = document.getElementById("buy_sell_input");
+  element.max = maximum_buy_amount;
+  element = document.getElementById("buy_sell_confirm_button");
+  element.textContent = `Confirm ($0)`;
+}
+
+function calculate_sell_confirmation() {
+  let maximum_sell_amount = owned_stocks[primary_ticker_company.ticker];
+  let element = document.getElementById("buy_sell_slider");
+  element.max = maximum_sell_amount;
+  element = document.getElementById("buy_sell_input");
+  element.max = maximum_sell_amount;
+  element = document.getElementById("buy_sell_confirm_button");
+  element.textContent = `Confirm ($0)`;
+}
+
+function set_share_buy_sell_amount(amount) {
+  share_buy_sell_amount = amount;
+  let element = document.getElementById("buy_sell_slider");
+  element.value = share_buy_sell_amount;
+  element = document.getElementById("buy_sell_input");
+  element.value = share_buy_sell_amount;
+}
+
+function on_confirmation_input_change() {
+  let input_element = document.getElementById("buy_sell_input");
+  if (buy_or_sell_confirmation_menu === CONFIRM_BUY) {
+    input_element.value = Math.max(
+      0,
+      Math.min(
+        input_element.value,
+        Math.trunc(cash / primary_ticker_company.current_price)
+      )
+    );
+  } else if (buy_or_sell_confirmation_menu === CONFIRM_SELL) {
+    input_element.value = Math.max(
+      0,
+      Math.min(input_element.value, owned_stocks[primary_ticker_company.ticker])
+    );
+  }
+  let slider_element = document.getElementById("buy_sell_slider");
+  slider_element.value = input_element.value;
+  share_buy_sell_amount = input_element.value;
+  let element = document.getElementById("buy_sell_confirm_button");
+  element.textContent = `Confirm ($${
+    input_element.value * primary_ticker_company.current_price
+  })`;
+}
+
+function on_confirmation_slider_change() {
+  let input_element = document.getElementById("buy_sell_input");
+  let slider_element = document.getElementById("buy_sell_slider");
+  input_element.value = slider_element.value;
+  share_buy_sell_amount = slider_element.value;
+  let element = document.getElementById("buy_sell_confirm_button");
+  element.textContent = `Confirm ($${
+    input_element.value * primary_ticker_company.current_price
+  })`;
+}
+
+function on_confirmation_cancel() {
+  set_buy_confirmation(false);
+}
+
+function on_confirmation_buy_sell() {
+  if (buy_or_sell_confirmation_menu === CONFIRM_BUY) {
+    adjust_cash(
+      -(share_buy_sell_amount * primary_ticker_company.current_price)
+    );
+    adjust_shares(primary_ticker_company.ticker, share_buy_sell_amount);
+    set_buy_confirmation(false);
+    update_main_ticker_info();
+  } else if (buy_or_sell_confirmation_menu === CONFIRM_SELL) {
+    adjust_cash(share_buy_sell_amount * primary_ticker_company.current_price);
+    adjust_shares(primary_ticker_company.ticker, -share_buy_sell_amount);
+    set_sell_confirmation(false);
+    update_main_ticker_info();
+  }
 }
 
 // Buy/sell buttons
@@ -410,13 +702,14 @@ function buy_button_1_press() {
     return;
   }
   buy_shares(primary_ticker_company.ticker, 1);
+  update_main_ticker_info();
 }
 
 function buy_button_amount_press() {
   if (!primary_ticker_company) {
     return;
   }
-  buy_shares(primary_ticker_company.ticker, 1);
+  set_buy_confirmation(true);
 }
 
 function sell_button_1_press() {
@@ -424,8 +717,15 @@ function sell_button_1_press() {
     return;
   }
   sell_shares(primary_ticker_company.ticker, 1);
+  update_main_ticker_info();
 }
 
+function sell_button_amount_press() {
+  if (!primary_ticker_company) {
+    return;
+  }
+  set_sell_confirmation(true);
+}
 // Info buttons
 
 const INFO_SUBTAB_BASIC_READING = "basic_reading";
@@ -609,4 +909,6 @@ function set_tab_game() {
   element.textContent = "3.4: Empty";
   element = document.getElementById("info_button_5");
   element.textContent = "Return";
+  element = document.getElementById("info_body");
+  element.innerHTML = "";
 }

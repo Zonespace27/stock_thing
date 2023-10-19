@@ -125,8 +125,7 @@
     }
 
     .secondary_ticker_info_name {
-      float: top;
-      height: 50%
+      display: auto;
     }
 
     .stock_interface {
@@ -185,7 +184,7 @@
       background-color: white;
       border: solid 2px gray;
       z-index: 3;
-      display: block;
+      display: none;
     }
 
     .buy_sell_confirmation_container {
@@ -261,28 +260,81 @@
       align-items: center;
     }
 
+    .secondary_ticker_info_ticker {
+      float: bottom;
+      height: 30%;
+      max-height: 30%
+    }
+
+    .day_end_report {
+      position: fixed;
+      left: 35%;
+      right: 35%;
+      bottom: 45%;
+      top: 35%;
+      background-color: white;
+      border: solid 2px gray;
+      z-index: 4;
+      display: none;
+    }
+
+    .day_end_container {
+      float: top;
+      height: 88%
+    }
+
+    .day_end_button {
+      float: left;
+      width: 100%;
+      height: 30%;
+      background: rgb(15, 100, 5);
+      -webkit-transition: .2s;
+      transition: background .2s;
+    }
+
+    .day_end_button:hover {
+      background: rgb(85, 120, 75);
+      -webkit-transition: .2s;
+      transition: background .2s;
+    }
+
   </style>
 </head>
 <body>
   <div class="darken_overlay" id="dimmer"></div>  
   <div class="buy_sell_confirmation" id="buy_sell_confirmation">
     <div class="buy_sell_confirmation_container">
-      <div class="center_object" style="margin-bottom: 5%;">
+      <div class="center_object" style="margin-bottom: 5%;" id="buy_sell_confirmation_question">
         How many shares of TICKER would you like to purchase?
       </div>
       <div class="center_object" style="margin-bottom: 2%;">
-        <input type="number" min="1" max="100" value="50" id="buy_sell_input">
+        <input type="number" min="0" max="100" value="50" id="buy_sell_input" oninput="on_confirmation_input_change()">
       </div>
       <div class="center_object">
-        <input type="range" min="1" max="100" value="50" class="slider purchase_slider" id="buy_sell_slider">
+        <input type="range" min="0" max="100" value="50" class="slider purchase_slider" id="buy_sell_slider", oninput="on_confirmation_slider_change()">
       </div>
     </div>
     <div style="float: bottom">
-      <button class="buy_sell_confirmation_button">
+      <button class="buy_sell_confirmation_button" id="buy_sell_cancel_button" onclick="on_confirmation_cancel()">
         Cancel
       </button>
-      <button class="buy_sell_confirmation_button confirm">
+      <button class="buy_sell_confirmation_button confirm" id="buy_sell_confirm_button" onclick="on_confirmation_buy_sell()">
         Confirm ($xxxx)
+      </button>
+    </div>
+  </div>
+  <div class="day_end_report" id="day_end_report">
+    <div class="buy_sell_confirmation_container">
+      <div class="center_object" style="margin-bottom: 5%;">
+        End of Day Report
+      </div>
+      <div class="day_end_report_funds" id="day_end_report_funds">
+        Money [Earned]/[Lost]: $000
+      </div>
+    </div>
+    <div style="float: bottom">
+      <button class="day_end_button" onclick="day_end_report_continue()">
+        Continue to Next Day
       </button>
     </div>
   </div>
@@ -359,16 +411,16 @@
         initChart("base", "FZBZ", true);
       </script>
       <div class="main_ticker_buy_sell">
-        <button class="main_ticker_button">
+        <button class="main_ticker_button" id="main_ticker_button_buy1" onclick="buy_button_1_press()">
           Buy 1
         </button>
-        <button class="main_ticker_button">
+        <button class="main_ticker_button" id="main_ticker_button_buyamount" onclick="buy_button_amount_press()">
           Buy Amount
         </button>
-        <button class="main_ticker_button" style="background-color: red;">
+        <button class="main_ticker_button" id="main_ticker_button_sell1" style="background-color: red;" onclick="sell_button_1_press()">
           Sell 1
         </button>
-        <button class="main_ticker_button" style="background-color: red;">
+        <button class="main_ticker_button" id="main_ticker_button_sellamount" style="background-color: red;" onclick="sell_button_amount_press()">
           Sell Amount
         </button>
       </div>
@@ -376,10 +428,10 @@
     <div class="secondary_tickers">
       <div class="secondary_ticker">
         <div class="secondary_ticker_info">
-          <div class="secondary_ticker_info_name">
+          <div class="secondary_ticker_info_name" id="st_info_name_base2">
             Foobar Ltd.
           </div>
-          <div>
+          <div class="secondary_ticker_info_ticker" id="st_info_ticker_base2">
             FBR
           </div>
         </div>
@@ -391,61 +443,61 @@
       <div class="secondary_ticker_divider"></div>
       <div class="secondary_ticker">
         <div class="secondary_ticker_info">
-          <div class="secondary_ticker_info_name">
+          <div class="secondary_ticker_info_name" id="st_info_name_base3">
             Foobar Ltd.
           </div>
-          <div>
+          <div class="secondary_ticker_info_ticker" id="st_info_ticker_base3">
             FBR
           </div>
         </div>
         <canvas id="base3" style="width: 100%; max-width: 86.5%; height: 100%"></canvas>
         <script>
-          initChart("base3");
+          initChart("base3", "WY");
         </script>
       </div>
       <div class="secondary_ticker_divider"></div>
       <div class="secondary_ticker">
         <div class="secondary_ticker_info">
-          <div class="secondary_ticker_info_name">
+          <div class="secondary_ticker_info_name" id="st_info_name_base4">
             Foobar Ltd.
           </div>
-          <div>
+          <div class="secondary_ticker_info_ticker" id="st_info_ticker_base4">
             FBR
           </div>
         </div>
         <canvas id="base4" style="width: 100%; max-width: 86.5%; height: 100%"></canvas>
         <script>
-          initChart("base4");
+          initChart("base4", "MCSF");
         </script>
       </div>
       <div class="secondary_ticker_divider"></div>
       <div class="secondary_ticker">
         <div class="secondary_ticker_info">
-          <div class="secondary_ticker_info_name">
+          <div class="secondary_ticker_info_name" id="st_info_name_base5">
             Foobar Ltd.
           </div>
-          <div>
+          <div class="secondary_ticker_info_ticker" id="st_info_ticker_base5">
             FBR
           </div>
         </div>
         <canvas id="base5" style="width: 100%; max-width: 86.5%; height: 100%"></canvas>
         <script>
-          initChart("base5");
+          initChart("base5", "BB");
         </script>
       </div>
       <div class="secondary_ticker_divider"></div>
       <div class="secondary_ticker">
         <div class="secondary_ticker_info">
-          <div class="secondary_ticker_info_name">
+          <div class="secondary_ticker_info_name" id="st_info_name_base6">
             Foobar Ltd.
           </div>
-          <div>
+          <div class="secondary_ticker_info_ticker" id="st_info_ticker_base6">
             FBR
           </div>
         </div>
         <canvas id="base6" style="width: 100%; max-width: 86.5%; height: 100%"></canvas>
         <script>
-          initChart("base6");
+          initChart("base6", "FSW");
         </script> 
       </div>
     </div>
@@ -457,9 +509,14 @@
       </div>
     </div>
     <div class="bottom_column" style="background-color:#ddd; text-align: right">
-      <div style="padding-right: 20%">
+      <div style="padding-right: 20%" id="cash_count">
         Current Funds: $0,000.00
       </div>
     </div>
   </div>
+  <script>
+    update_main_ticker_info();
+    update_cash();
+    start_trading_day();
+  </script>
 </body>
