@@ -348,6 +348,11 @@ function advance_year() {
 var starting_cash = 0;
 
 /**
+ * How many shares the user is starting with today
+ */
+var starting_shares = {};
+
+/**
  * Ref to the interval object for the trading day
  */
 var day_interval;
@@ -400,6 +405,7 @@ var time_per_tick = seconds_to_ms(2);
 function start_trading_day() {
   current_time = start_time;
   starting_cash = cash;
+  Object.assign(starting_shares, owned_stocks);
   day_in_progress = true;
   start_interval();
 }
@@ -493,6 +499,36 @@ function sell_shares(company_ticker, amount = 1) {
   adjust_cash(company.current_price * amount);
 }
 
+function get_shares_value() {
+  let total = 0;
+  Object.keys(owned_stocks).forEach((ticker) => {
+    total += parseFloat(
+      ticker_to_company[ticker].current_price * parseInt(owned_stocks[ticker])
+    );
+  });
+  return total;
+}
+
+function get_share_count() {
+  let total = 0;
+  Object.keys(owned_stocks).forEach((ticker) => {
+    total += parseInt(owned_stocks[ticker]);
+  });
+  return total;
+}
+
+function get_share_difference() {
+  let cash_total = 0;
+  let share_total = 0;
+  Object.keys(owned_stocks).forEach((ticker) => {
+    let share_delta =
+      parseInt(owned_stocks[ticker]) - parseInt(starting_shares[ticker]);
+    share_total += share_delta;
+    cash_total += share_delta * ticker_to_company[ticker].current_price;
+  });
+  return [share_total, cash_total];
+}
+
 /*
  * UI button interactions
  */
@@ -554,12 +590,26 @@ function set_day_end_report(on = true) {
     dim_screen();
     let element = document.getElementById("day_end_report_funds");
     if (cash >= starting_cash) {
-      element.textContent = `Money Earned: $${cash - starting_cash}`;
+      element.textContent = `Cash Earned: $${cash - starting_cash}`;
       element.style.color = "green";
     } else {
-      element.textContent = `Money Lost: $${cash - starting_cash}`;
+      element.textContent = `Cash Lost: $${cash - starting_cash}`;
       element.style.color = "red";
     }
+
+    let share_data = get_share_difference();
+    element = document.getElementById("day_end_report_shares");
+    element.textContent = `Shares Acquired: ${share_data[0]} ($${share_data[1]})`;
+    element.style.color = "green";
+
+    element = document.getElementById("day_end_report_total");
+    if (cash - starting_cash + share_data[1] > 0) {
+      element.style.color = "green";
+    } else {
+      element.style.color = "red";
+    }
+    element.textContent = `Total: $${cash - starting_cash + share_data[1]}`;
+
     element = document.getElementById("day_end_report");
     element.style.display = "block";
   } else {
