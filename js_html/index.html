@@ -21,7 +21,8 @@
     }
     
     .bottom_row {
-        border: 5px solid gray; 
+        border: 0px solid gray;
+        z-index: 2;
     }    
 
     .bottom_row:after {
@@ -41,9 +42,11 @@
     .bottom_column {
         float: left;
         width: 50%;
-        padding-top: 10px;
-        padding-bottom: 10px;
+        padding-top: 12px;
+        padding-bottom: 12px;
         text-align: center;
+        height: 100%;
+        z-index: 3;
     }
     
     .main_ticker {
@@ -67,7 +70,6 @@
     }
     
     .secondary_ticker {
-        float: top;
         height: 20%;
         text-align: center;
         background-color: red;
@@ -98,7 +100,6 @@
     }
     
     .information_section {
-        float: top;
         height: 20%;
         text-align: center;
         background-color: red;
@@ -122,14 +123,6 @@
       padding-right: 4px;
       width: 12%;
       max-width: 12%;
-    }
-
-    .secondary_ticker_info_name {
-      display: auto;
-    }
-
-    .stock_interface {
-        display: auto;
     }
 
     .information_interface {
@@ -160,8 +153,38 @@
     .main_ticker_button {
       background-color: green;
       float: left;
-      width: 25%;
+      width: 50%;
       height: 100%;
+      z-index: 1;
+    }
+
+    .main_ticker_button_div {
+      float: left;
+      width: 50%;
+      height: 100%;
+      display: none;
+    }
+
+    .main_ticker_button_div.animate_disappear {
+      animation-name: main_ticker_button_div_animate_disappear;
+      animation-duration: 3s;
+      animation-fill-mode: forwards;
+    }
+
+    .main_ticker_button_div.animate_appear {
+      animation-name: main_ticker_button_div_animate_appear;
+      animation-duration: 3s;
+      animation-fill-mode: forwards;
+    }
+
+    @keyframes main_ticker_button_div_animate_disappear {
+      0% {width: 50%}
+      100% {width: 0%}
+    }
+
+    @keyframes main_ticker_button_div_animate_appear {
+      0% {width: 0%}
+      100% {width: 50%}
     }
 
     .darken_overlay {
@@ -188,7 +211,6 @@
     }
 
     .buy_sell_confirmation_container {
-      float: top;
       height: 88%
     }
 
@@ -261,7 +283,6 @@
     }
 
     .secondary_ticker_info_ticker {
-      float: bottom;
       height: 30%;
       max-height: 30%
     }
@@ -279,7 +300,6 @@
     }
 
     .day_end_container {
-      float: top;
       height: 88%
     }
 
@@ -298,6 +318,35 @@
       transition: background .2s;
     }
 
+    .start_day_button {
+      background-color: lightblue;
+      width: 100%;
+      height: 100%;
+      float: right;
+    }
+
+    .start_day_button.animate_disappear {
+      animation-name: start_day_button_animate_disappear;
+      animation-duration: 3s;
+      animation-fill-mode: forwards;
+    }
+
+    .start_day_button.animate_appear {
+      animation-name: start_day_button_animate_appear;
+      animation-duration: 3s;
+      animation-fill-mode: forwards;
+    }
+
+    @keyframes start_day_button_animate_disappear {
+      0% {width: 100%}
+      100% {width: 0%}
+    }
+
+    @keyframes start_day_button_animate_appear {
+      0% {width: 0%}
+      100% {width: 100%}
+    }
+
   </style>
 </head>
 <body>
@@ -314,7 +363,7 @@
         <input type="range" min="0" max="100" value="50" class="slider purchase_slider" id="buy_sell_slider", oninput="on_confirmation_slider_change()">
       </div>
     </div>
-    <div style="float: bottom">
+    <div>
       <button class="buy_sell_confirmation_button" id="buy_sell_cancel_button" onclick="on_confirmation_cancel()">
         Cancel
       </button>
@@ -338,7 +387,7 @@
         Total:
       </div>
     </div>
-    <div style="float: bottom">
+    <div>
       <button class="day_end_button" onclick="day_end_report_continue()">
         Continue to Next Day
       </button>
@@ -417,18 +466,25 @@
         initChart("base", "FZBZ", true);
       </script>
       <div class="main_ticker_buy_sell">
-        <button class="main_ticker_button" id="main_ticker_button_buy1" onclick="buy_button_1_press()">
-          Buy 1
+        <div class="main_ticker_button_div" id="main_ticker_buy_buttons">
+          <button class="main_ticker_button" id="main_ticker_button_buy1" onclick="buy_button_1_press()">
+            Buy 1
+          </button>
+          <button class="main_ticker_button" id="main_ticker_button_buyamount" onclick="buy_button_amount_press()">
+            Buy Amount
+          </button>
+        </div>
+        <button class="start_day_button" id="start_day_button" onclick="start_day_button_press()">
+          Start Trading Day
         </button>
-        <button class="main_ticker_button" id="main_ticker_button_buyamount" onclick="buy_button_amount_press()">
-          Buy Amount
-        </button>
-        <button class="main_ticker_button" id="main_ticker_button_sell1" style="background-color: red;" onclick="sell_button_1_press()">
-          Sell 1
-        </button>
-        <button class="main_ticker_button" id="main_ticker_button_sellamount" style="background-color: red;" onclick="sell_button_amount_press()">
-          Sell Amount
-        </button>
+        <div class="main_ticker_button_div" id="main_ticker_sell_buttons" style="float: left">
+          <button class="main_ticker_button" id="main_ticker_button_sell1" style="background-color: red;" onclick="sell_button_1_press()">
+            Sell 1
+          </button>
+          <button class="main_ticker_button" id="main_ticker_button_sellamount" style="background-color: red;" onclick="sell_button_amount_press()">
+            Sell Amount
+          </button>
+        </div>
       </div>
     </div>
     <div class="secondary_tickers">
@@ -521,8 +577,10 @@
     </div>
   </div>
   <script>
+    update_company_prices();
     update_main_ticker_info();
     update_cash();
-    start_trading_day();
+    //start_trading_day();
+    //trading_day_button_appear();
   </script>
 </body>

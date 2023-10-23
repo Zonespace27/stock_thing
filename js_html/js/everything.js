@@ -97,7 +97,7 @@ class Company {
     /**
      * The current value put through sin_equation. Starts as a random int between 0 and 1 rounded to the nearest 10th place
      */
-    this.sin_value = Math.round(10 * Math.random()) / 10;
+    this.sin_value = Math.abs(Math.round(10 * Math.random()) / 10);
 
     owned_stocks[this.ticker] = 0;
   }
@@ -187,6 +187,66 @@ function update_main_ticker_info() {
   }
 }
 
+function trading_day_button_appear() {
+  disable_trading_buttons(true);
+  let element = document.getElementById("main_ticker_buy_buttons");
+  element.classList.add("animate_disappear");
+  element = document.getElementById("main_ticker_sell_buttons");
+  element.classList.add("animate_disappear");
+  element = document.getElementById("start_day_button");
+  element.classList.add("animate_appear");
+  element.style.display = "block";
+  setTimeout(function () {
+    disable_trading_buttons(false);
+    update_main_ticker_info();
+    let element = document.getElementById("main_ticker_buy_buttons");
+    element.classList.remove("animate_disappear");
+    element.style.display = "none";
+    element = document.getElementById("main_ticker_sell_buttons");
+    element.classList.remove("animate_disappear");
+    element.style.display = "none";
+    element = document.getElementById("start_day_button");
+    element.classList.remove("animate_appear");
+  }, 2400); // this number is hand-picked to cause minimum jank
+}
+
+function trading_day_button_disappear() {
+  disable_trading_buttons(true);
+  let element = document.getElementById("start_day_button");
+  element.classList.remove("animate_appear");
+  element.classList.add("animate_disappear");
+  element = document.getElementById("main_ticker_buy_buttons");
+  element.classList.add("animate_appear");
+  element.style.display = "block";
+  element = document.getElementById("main_ticker_sell_buttons");
+  element.classList.add("animate_appear");
+  element.style.display = "block";
+  setTimeout(function () {
+    disable_trading_buttons(false);
+    update_main_ticker_info();
+    let element = document.getElementById("start_day_button");
+    element.classList.remove("animate_disappear");
+    element.style.display = "none";
+    element = document.getElementById("main_ticker_buy_buttons");
+    element.classList.remove("animate_appear");
+    element = document.getElementById("main_ticker_sell_buttons");
+    element.classList.remove("animate_appear");
+  }, 2450); // this number is hand-picked to cause minimum jank
+}
+
+function disable_trading_buttons(boolean_set = true) {
+  let element = document.getElementById("main_ticker_button_buy1");
+  element.disabled = boolean_set;
+  element = document.getElementById("main_ticker_button_buyamount");
+  element.disabled = boolean_set;
+  element = document.getElementById("main_ticker_button_sell1");
+  element.disabled = boolean_set;
+  element = document.getElementById("main_ticker_button_sellamount");
+  element.disabled = boolean_set;
+  element = document.getElementById("start_day_button");
+  element.disabled = boolean_set;
+}
+
 /*
  * Chart stuff
  */
@@ -237,7 +297,8 @@ function sin_equation(company) {
   return Math.trunc(
     (company.sin_multiplier *
       Math.sin(company.sin_value * company.period_divider) +
-      company.y_axis_offset * (Math.round(10 * (0.5 + Math.random())) / 10)) *
+      company.y_axis_offset *
+        (Math.round(10 * Math.abs(0.5 + Math.random())) / 10)) *
       1
   );
 }
@@ -591,24 +652,52 @@ function set_day_end_report(on = true) {
     let element = document.getElementById("day_end_report_funds");
     if (cash >= starting_cash) {
       element.textContent = `Cash Earned: $${cash - starting_cash}`;
-      element.style.color = "green";
+      if (cash == starting_cash) {
+        element.style.color = "black";
+      } else {
+        element.style.color = "green";
+      }
     } else {
-      element.textContent = `Cash Lost: $${cash - starting_cash}`;
+      element.textContent = `Cash Lost: -$${Math.abs(cash - starting_cash)}`;
       element.style.color = "red";
     }
 
-    let share_data = get_share_difference();
+    //let share_data = get_share_difference();
     element = document.getElementById("day_end_report_shares");
-    element.textContent = `Shares Acquired: ${share_data[0]} ($${share_data[1]})`;
-    element.style.color = "green";
+    /*if (share_data[0] == 0 && share_data[1] == 0) {
+      element.style.color = "black";
+      element.textContent = `Shares Acquired: ${share_data[0]} ($0)`;
+    } else if (share_data[0] < 0 && share_data[1] < 0) {
+      element.style.color = "red";
+      element.textContent = `Shares Acquired: 0 ($0)`;
+    } else {
+      element.style.color = "green";
+      //element.textContent = `Shares Acquired: ${share_data[0]} ($${share_data[1]})`;
+    }*/
+    let return_string = "Shares Acquired: ";
+    Object.keys(owned_stocks).forEach((ticker) => {
+      let amount =
+        parseInt(owned_stocks[ticker]) - parseInt(starting_shares[ticker]);
+      if (amount == 0) {
+        return; // acts as a continue because of how forEach works
+      }
+      return_string = return_string.concat(`<br><b>${ticker}</b>: ${amount}`);
+    });
+    element.innerHTML = return_string;
 
-    element = document.getElementById("day_end_report_total");
+    /*element = document.getElementById("day_end_report_total");
     if (cash - starting_cash + share_data[1] > 0) {
       element.style.color = "green";
+      element.textContent = `Total: $${cash - starting_cash + share_data[1]}`;
+    } else if (cash - starting_cash + share_data[1] == 0) {
+      element.style.color = "black";
+      element.textContent = `Total: $0`;
     } else {
       element.style.color = "red";
-    }
-    element.textContent = `Total: $${cash - starting_cash + share_data[1]}`;
+      element.textContent = `Total: -$${Math.abs(
+        cash - starting_cash + share_data[1]
+      )}`;
+    }*/
 
     element = document.getElementById("day_end_report");
     element.style.display = "block";
@@ -621,6 +710,7 @@ function set_day_end_report(on = true) {
 
 function day_end_report_continue() {
   advance_day();
+  trading_day_button_appear();
   set_day_end_report(false);
 }
 
@@ -776,6 +866,14 @@ function sell_button_amount_press() {
   }
   set_sell_confirmation(true);
 }
+
+function start_day_button_press() {
+  trading_day_button_disappear();
+  setTimeout(function () {
+    start_trading_day();
+  }, 2000); // long enough for the animation to settle
+}
+
 // Info buttons
 
 const INFO_SUBTAB_BASIC_READING = "basic_reading";
