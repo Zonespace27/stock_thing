@@ -11,9 +11,9 @@ var company_list = [];
 var primary_ticker_company;
 
 /**
- * List of companies in the secondary ticker slots
+ * Dict of companies ("chart_id" : company | null) in the secondary ticker slots
  */
-var secondary_ticker_companies = [];
+var secondary_ticker_companies = {};
 
 /// Dict of ticker : company object
 var ticker_to_company = {};
@@ -62,6 +62,13 @@ const company_data = [
     sin_multiplier: 3,
     period_divider: 2,
   },
+  {
+    company_name: "Florstore",
+    ticker: "FSTR",
+    y_axis_offset: 1000,
+    sin_multiplier: 3,
+    period_divider: 2,
+  },
 ];
 
 class Company {
@@ -79,12 +86,14 @@ class Company {
     this.sin_multiplier = sin_multiplier; // in the formula y=m*sin(ox)+n, represents m
     this.period_divider = period_divider; // in the formula y=m*sin(ox)+n, represents o
     this.sin_progression = sin_progression; // How much to progress sin_value by
+    this.previous_price = 0;
     this.current_price = 0;
     /**
      * The last [max_data_points] pieces of historical price data
      */
     this.chart_data = [];
     this.linked_chart = null;
+    this.chart_id = "";
     /**
      * The lowest value this stock has been on a given trading day
      */
@@ -113,11 +122,30 @@ class Company {
       this.minimum_daily_value = new_price;
     }
 
+    this.previous_price = this.current_price;
     this.current_price = new_price;
     if (this.chart_data.length >= max_data_points) {
       this.chart_data.shift();
     }
     this.chart_data.push(this.current_price);
+
+    let info_div = document.getElementById(
+      `stock_subcolumn_info_${this.ticker}`
+    );
+    info_div.innerHTML = `<div class='stock_list_subsubcolumn'>$${
+      this.current_price
+    }</div> <div class='stock_list_subsubcolumn'><span style='color: ${
+      this.previous_price > this.current_price ? "red" : "green"
+    }' title='Recent Movement'>${
+      this.previous_price > this.current_price ? "-" : ""
+    }$${Math.abs(
+      this.current_price - this.previous_price
+    )}</span></div>  <div class='stock_list_subsubcolumn'><span title='Daily Minimum / Daily Maximum'><span style='color: red'>$${
+      this.minimum_daily_value
+    }</span> / <span style='color: green'>$${
+      this.maximum_daily_value
+    }</span></span></div>`;
+
     if (this.linked_chart) {
       if (
         !this.linked_chart.data ||
@@ -150,12 +178,78 @@ function build_companies() {
   );
 }
 
+function list_companies() {
+  company_list.forEach((company) => create_company_entry(company));
+}
+
+function create_company_entry(company) {
+  let new_div = document.createElement("div");
+  new_div.classList.add("stock_list_column");
+  new_div.id = `stock_column_${company.ticker}`;
+
+  let text_div = document.createElement("div");
+  text_div.classList.add("stock_list_subcolumn_text");
+  text_div.id = `stock_subcolumn_text_${company.ticker}`;
+  text_div.innerHTML = `<div class='stock_list_subsubcolumn'>${company.ticker}</div><div class='stock_list_subsubcolumn'><button id='stock_list_button_${company.ticker}' onclick='stock_list_add_remove_press("${company.ticker}")'>Aeiou</button></div>`;
+
+  let info_div = document.createElement("div");
+  info_div.classList.add("stock_list_subcolumn_info");
+  info_div.id = `stock_subcolumn_info_${company.ticker}`;
+  info_div.innerHTML = "Hello";
+
+  new_div.appendChild(text_div);
+  new_div.appendChild(info_div);
+  let parent_element = document.getElementById("stock_list");
+  parent_element.appendChild(new_div);
+}
+
+function update_all_company_entry_buttons() {
+  Object.keys(ticker_to_company).forEach((ticker) =>
+    update_company_entry_button(ticker)
+  );
+}
+
+function update_company_entry_button(company_ticker) {
+  if (!company_ticker) {
+    return;
+  }
+  let element = document.getElementById(`stock_list_button_${company_ticker}`);
+  if (
+    Object.values(secondary_ticker_companies).indexOf(
+      ticker_to_company[company_ticker]
+    ) !== -1 ||
+    ticker_to_company[company_ticker] === primary_ticker_company
+  ) {
+    // The company is in a ticker slot
+    element.style.backgroundColor = "red";
+    element.innerText = "Remove";
+  } else {
+    // The company isn't in a ticker slot
+    element.style.backgroundColor = "green";
+    element.innerText = "Add";
+  }
+}
+
 function update_company_prices() {
   company_list.forEach((company) => company.on_day_tick());
 }
 
 function update_main_ticker_info() {
-  let element = document.getElementById("main_ticker_info_minmax");
+  if (!primary_ticker_company) {
+    let element = document.getElementById("main_ticker_button_buy1");
+    element.disabled = true;
+    element = document.getElementById("main_ticker_button_buyamount");
+    element.disabled = true;
+    element = document.getElementById("main_ticker_button_sell1");
+    element.disabled = true;
+    element = document.getElementById("main_ticker_button_sellamount");
+    element.disabled = true;
+    return;
+  }
+
+  let element = document.getElementById("main_ticker_info_name");
+  element.textContent = `${primary_ticker_company.company_name} (${primary_ticker_company.ticker})`;
+  element = document.getElementById("main_ticker_info_minmax");
   element.textContent = `$${primary_ticker_company.minimum_daily_value} / $${primary_ticker_company.maximum_daily_value}`;
   element = document.getElementById("main_ticker_info_shares");
   element.textContent = `${
@@ -163,6 +257,7 @@ function update_main_ticker_info() {
   } Shares Owned`;
   element = document.getElementById("main_ticker_info_value");
   element.textContent = `$${primary_ticker_company.current_price}`;
+
   if (primary_ticker_company.current_price > cash) {
     element = document.getElementById("main_ticker_button_buy1");
     element.disabled = true;
@@ -174,6 +269,7 @@ function update_main_ticker_info() {
     element = document.getElementById("main_ticker_button_buyamount");
     element.disabled = false;
   }
+
   if (parseInt(owned_stocks[primary_ticker_company.ticker]) <= 0) {
     element = document.getElementById("main_ticker_button_sell1");
     element.disabled = true;
@@ -254,9 +350,12 @@ function disable_trading_buttons(boolean_set = true) {
 const xValues = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000];
 const max_data_points = 10;
 
+/**
+ * "chart_id" : chart ref
+ */
 var charts = {};
 
-function initChart(chart_id, ticker = "", primary_ticker = false) {
+function init_chart(chart_id, ticker = "", primary_ticker = false) {
   let new_chart = new Chart(chart_id, {
     type: "line",
     data: {
@@ -270,18 +369,29 @@ function initChart(chart_id, ticker = "", primary_ticker = false) {
       ],
     },
     options: {
+      maintainAspectRatio: false,
       legend: { display: false },
+      scales: {
+        xAxes: [
+          {
+            ticks: {
+              display: false,
+            },
+          },
+        ],
+      },
     },
   });
   charts[chart_id] = new_chart;
-  if (ticker && ticker != "") {
+  if (ticker && ticker !== "") {
     let company = ticker_to_company[ticker];
     company.linked_chart = new_chart;
+    company.chart_id = chart_id;
     company.chart_data = new_chart?.data?.datasets[0]?.data;
     if (primary_ticker) {
       primary_ticker_company = company;
     } else {
-      secondary_ticker_companies.push(company);
+      secondary_ticker_companies[chart_id] = company;
     }
     let element = document.getElementById(`st_info_name_${chart_id}`);
     if (element) {
@@ -301,6 +411,92 @@ function sin_equation(company) {
         (Math.round(10 * Math.abs(0.5 + Math.random())) / 10)) *
       1
   );
+}
+
+// Secondary ticker junk
+
+function stock_list_add_remove_press(company_ticker) {
+  if (!company_ticker) {
+    return;
+  }
+  if (
+    Object.values(secondary_ticker_companies).indexOf(
+      ticker_to_company[company_ticker]
+    ) !== -1
+  ) {
+    remove_from_secondary_ticker(company_ticker);
+  } else {
+    if (ticker_to_company[company_ticker] === primary_ticker_company) {
+      remove_from_primary_ticker(company_ticker);
+      update_company_entry_button(company_ticker);
+      return;
+    }
+    if (!primary_ticker_company) {
+      add_to_primary_ticker(company_ticker);
+    } else {
+      add_to_secondary_ticker(company_ticker);
+    }
+  }
+  update_company_entry_button(company_ticker);
+}
+
+function add_to_primary_ticker(company_ticker) {
+  if (!company_ticker) {
+    return;
+  }
+  init_chart("primary", company_ticker, true);
+  update_main_ticker_info();
+}
+
+function remove_from_primary_ticker(company_ticker) {
+  if (!company_ticker) {
+    return;
+  }
+  primary_ticker_company.linked_chart = null;
+  primary_ticker_company.chart_id = "";
+  primary_ticker_company = "";
+  let element = document.getElementById("main_ticker_info_name");
+  element.textContent = "";
+  element = document.getElementById("main_ticker_info_minmax");
+  element.textContent = "";
+  element = document.getElementById("main_ticker_info_shares");
+  element.textContent = "";
+  element = document.getElementById("main_ticker_info_value");
+  element.textContent = "";
+  charts["primary"].destroy();
+  delete charts["primary"];
+}
+
+function add_to_secondary_ticker(company_ticker) {
+  if (!company_ticker) {
+    return;
+  }
+  let created_chart = false;
+  Object.keys(secondary_ticker_companies).forEach((chart_id) => {
+    if (created_chart || secondary_ticker_companies[chart_id]) {
+      return; // ignore any ticker entries that already have a chart
+    }
+
+    init_chart(chart_id, company_ticker, false);
+    created_chart = true;
+  });
+}
+
+function remove_from_secondary_ticker(company_ticker) {
+  if (!company_ticker) {
+    return;
+  }
+  let chart_id = ticker_to_company[company_ticker].chart_id;
+  let chart = charts[chart_id];
+  delete charts[chart_id];
+  ticker_to_company[company_ticker].linked_chart = null;
+  secondary_ticker_companies[chart_id] = null;
+  let element = document.getElementById(`st_info_name_${chart_id}`);
+  element.textContent = "";
+  element = document.getElementById(`st_info_ticker_${chart_id}`);
+  element.textContent = "";
+  ticker_to_company[company_ticker].chart_id = "";
+  chart.destroy();
 }
 
 /*
@@ -662,18 +858,7 @@ function set_day_end_report(on = true) {
       element.style.color = "red";
     }
 
-    //let share_data = get_share_difference();
     element = document.getElementById("day_end_report_shares");
-    /*if (share_data[0] == 0 && share_data[1] == 0) {
-      element.style.color = "black";
-      element.textContent = `Shares Acquired: ${share_data[0]} ($0)`;
-    } else if (share_data[0] < 0 && share_data[1] < 0) {
-      element.style.color = "red";
-      element.textContent = `Shares Acquired: 0 ($0)`;
-    } else {
-      element.style.color = "green";
-      //element.textContent = `Shares Acquired: ${share_data[0]} ($${share_data[1]})`;
-    }*/
     let return_string = "Shares Acquired: ";
     Object.keys(owned_stocks).forEach((ticker) => {
       let amount =
@@ -684,20 +869,6 @@ function set_day_end_report(on = true) {
       return_string = return_string.concat(`<br><b>${ticker}</b>: ${amount}`);
     });
     element.innerHTML = return_string;
-
-    /*element = document.getElementById("day_end_report_total");
-    if (cash - starting_cash + share_data[1] > 0) {
-      element.style.color = "green";
-      element.textContent = `Total: $${cash - starting_cash + share_data[1]}`;
-    } else if (cash - starting_cash + share_data[1] == 0) {
-      element.style.color = "black";
-      element.textContent = `Total: $0`;
-    } else {
-      element.style.color = "red";
-      element.textContent = `Total: -$${Math.abs(
-        cash - starting_cash + share_data[1]
-      )}`;
-    }*/
 
     element = document.getElementById("day_end_report");
     element.style.display = "block";
