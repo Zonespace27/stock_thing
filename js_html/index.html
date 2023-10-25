@@ -11,13 +11,22 @@
     }
 
     .head_row {
-        border: 5px solid gray; 
+        background-color: #232324;
     }
     
     .head_row:after {
         content: "";
         display: table;
         clear: both;
+    }
+
+    .head_row_button {
+      background-color: #4a4a4d;
+      border: none;
+      border-bottom-color: #666694;
+      border-bottom-width: 3px;
+      border-bottom-style: solid;
+      border-radius: 3px 3px 1px 1px;
     }
     
     .bottom_row {
@@ -367,6 +376,42 @@
       transition: background .2s;
     }
 
+    .save_load_button {
+      width: 95%;
+      height: 30%;
+      margin-top: 2%;
+      margin-bottom: 3%;
+      background: rgb(15, 100, 5);
+      -webkit-transition: .2s;
+      transition: background .2s;
+    }
+
+    .save_load_button:hover {
+      background: rgb(85, 120, 75);
+      -webkit-transition: .2s;
+      transition: background .2s;
+    }
+
+    .save_load_button.red {
+      background: rgb(235, 10, 15);
+    }
+
+    .save_load_button.red:hover {
+      background: rgb(255, 80, 85);
+    }
+
+    .save_load_menu {
+      position: fixed;
+      left: 40%;
+      right: 40%;
+      bottom: 50%;
+      top: 30%;
+      background-color: white;
+      border: solid 2px gray;
+      z-index: 4;
+      display: none;
+    }
+
     .start_day_button {
       background-color: lightblue;
       width: 100%;
@@ -443,18 +488,43 @@
       </button>
     </div>
   </div>
+  <div class="save_load_menu" id="save_load_menu">
+    <div class="center_object" style="margin-top: 2%">
+      <b>Save Menu</b>
+    </div>
+    <div class="center_object">
+      <button class="save_load_button" onclick="save_button_press()">
+        Save
+      </button>
+    </div>
+    <div class="center_object">
+      <button class="save_load_button" onclick="load_button_press()">
+        Load
+      </button>
+    </div>
+    <div class="center_object">
+      <button class="save_load_button red" onclick="new_save_press()">
+        New Game
+      </button>
+    </div>
+    <div class="center_object">
+      <button class="save_load_button" onclick="set_save_load_menu(false)">
+        Close
+      </button>
+    </div>
+  </div>
   <div class="head_row">
-    <div class="top_column" style="background-color:#ddd;">
-        <button style="border: none" onclick="headrow_info()">Information</button>
+    <div class="top_column">
+      <button class="head_row_button" id="headrow_info_button" onclick="headrow_info()">Information</button>
     </div>
-    <div class="top_column" style="background-color:#ddd;">
-      <button style="border: none" onclick="headrow_trade()">Trading</button>
+    <div class="top_column">
+      <button class="head_row_button" id="headrow_trade_button" onclick="headrow_trade()">Trading</button>
     </div>
-    <div class="top_column" style="background-color:#ddd;">
-      <button style="border: none">News</button>
+    <div class="top_column">
+      <button class="head_row_button">News</button>
     </div>
-    <div class="top_column" style="background-color:#ddd;">
-      <button style="border: none">Save/Load</button>
+    <div class="top_column">
+      <button class="head_row_button" id="save_load_button" onclick="set_save_load_menu(true)">Save/Load</button>
     </div>
   </div>
 

@@ -449,7 +449,7 @@ function add_to_primary_ticker(company_ticker) {
 }
 
 function remove_from_primary_ticker(company_ticker) {
-  if (!company_ticker) {
+  if (!primary_ticker_company) {
     return;
   }
   primary_ticker_company.linked_chart = null;
@@ -665,12 +665,14 @@ function start_trading_day() {
   Object.assign(starting_shares, owned_stocks);
   day_in_progress = true;
   start_interval();
+  update_save_load_button();
 }
 
 function end_trading_day() {
   day_in_progress = false;
   clearInterval(day_interval);
   set_day_end_report(true);
+  update_save_load_button();
 }
 
 function start_interval() {
@@ -793,7 +795,11 @@ function get_share_difference() {
 /**
  * String ID of the currently focused page
  */
-var current_page = "";
+
+const PAGE_INFO = "Info";
+const PAGE_TRADE = "Trade";
+
+var current_page = PAGE_TRADE;
 
 // Header buttons
 
@@ -802,6 +808,9 @@ function headrow_trade() {
   element.style.display = "block";
   element = document.getElementById("information_interface");
   element.style.display = "none";
+  current_page = PAGE_TRADE;
+  set_button_select_color("headrow_info_button", false);
+  set_button_select_color("headrow_trade_button", true);
 }
 
 function headrow_info() {
@@ -809,6 +818,146 @@ function headrow_info() {
   element.style.display = "none";
   element = document.getElementById("information_interface");
   element.style.display = "block";
+  current_page = PAGE_INFO;
+  set_button_select_color("headrow_info_button", true);
+  set_button_select_color("headrow_trade_button", false);
+}
+
+function set_button_select_color(button_id = "", selected = true) {
+  if (!button_id) {
+    return;
+  }
+  let button = document.getElementById(button_id);
+  if (!button) {
+    return;
+  }
+
+  button.style.borderBottomColor = selected ? "#3232b8" : "#666694";
+}
+
+// Save button code
+function save_button_press() {
+  if (day_in_progress) {
+    return;
+  }
+  company_list.forEach((company) => {
+    document.cookie = `${
+      company.ticker
+    }_chartdata=${company.chart_data.toString()}`;
+  });
+  // add something for focused charts here
+  document.cookie = `primary_ticker=${
+    primary_ticker_company?.ticker || "none"
+  }`;
+  let secondary_ticker_copy = {};
+  Object.assign(secondary_ticker_copy, secondary_ticker_companies);
+  Object.keys(secondary_ticker_companies).forEach((chart_id) => {
+    secondary_ticker_copy[chart_id] =
+      secondary_ticker_companies[chart_id]?.ticker || null;
+  });
+  document.cookie = `secondary_tickers=${JSON.stringify(
+    secondary_ticker_copy
+  )}`;
+  document.cookie = `player_cash=${cash}`;
+  document.cookie = `player_shares=${JSON.stringify(owned_stocks)}`;
+}
+
+function load_button_press() {
+  if (day_in_progress) {
+    return;
+  }
+  let decoded_cookie = decodeURIComponent(document.cookie);
+  let cookie_elements = decoded_cookie.split(";");
+  cookie_elements.forEach((element) => {
+    let key_value = element.split("=");
+    let ticker_type = key_value[0].split("_");
+    if (ticker_type[1] === "chartdata") {
+      ticker_to_company[ticker_type[0]].chart_data = parse_cookie_chartdata(
+        key_value[1]
+      );
+      return;
+    }
+    switch (key_value[0]) {
+      case "player_cash":
+        cash = parseFloat(key_value[1]);
+        break;
+
+      case "player_shares":
+        owned_stocks = JSON.parse(key_value[1]);
+        break;
+
+      case "primary_ticker":
+        if (key_value[1] !== "none") {
+          remove_from_primary_ticker();
+          add_to_primary_ticker(ticker_to_company[key_value[1]]);
+          break;
+        }
+
+      case "secondary_tickers":
+        let ticker_dict = JSON.parse(key_value[1]);
+        Object.keys(ticker_dict).forEach((chart_id) => {
+          let dict_value = ticker_dict[chart_id];
+          if (dict_value == null) {
+            if (secondary_ticker_companies[chart_id] != null) {
+              remove_from_secondary_ticker(
+                secondary_ticker_companies[chart_id]
+              );
+            }
+          } else {
+            if (secondary_ticker_companies[chart_id] != null) {
+              remove_from_secondary_ticker(
+                secondary_ticker_companies[chart_id]
+              );
+            }
+            add_to_secondary_ticker(dict_value);
+          }
+        });
+        break;
+    }
+  });
+}
+
+function parse_cookie_chartdata(chart_data = "") {
+  return chart_data.split(",");
+}
+
+function new_save_press() {
+  current_day = 18;
+  current_month = "October";
+  current_year = 2023;
+  cash = 1000;
+  owned_stocks = {};
+  company_list.forEach((company) => {
+    owned_stocks[company.ticker] = 0;
+  });
+  set_save_load_menu(false);
+  // todo: add something to reset the prices of stocks maybe?
+}
+
+function set_save_load_menu(open = true) {
+  if (day_in_progress) {
+    return;
+  }
+
+  if (open) {
+    dim_screen();
+    let element = document.getElementById("save_load_menu");
+    element.style.display = "block";
+  } else {
+    undim_screen();
+    let element = document.getElementById("save_load_menu");
+    element.style.display = "none";
+  }
+}
+
+function update_save_load_button() {
+  if (day_in_progress) {
+    let element = document.getElementById("save_load_button");
+    element.disabled = true;
+  } else {
+    let element = document.getElementById("save_load_button");
+    element.disabled = false;
+  }
 }
 
 // Confirmation button pop-up code
