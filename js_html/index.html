@@ -28,6 +28,7 @@
       border-bottom-style: solid;
       border-radius: 3px 3px 1px 1px;
       color: #d9d9db;
+      cursor: pointer;
     }
 
     .button_base:hover {
@@ -41,6 +42,7 @@
       -webkit-transition: .4s;
       transition: .4s;
       border-bottom-color: #6a6a6b;
+      cursor: default;
     }
 
     .button_base:enabled {
@@ -510,7 +512,7 @@
       transition: .4s;
     }
 
-    .save_load_button:hover {
+    .button_base.save_load_button:hover {
       border-bottom-color: #34a333;
       -webkit-transition: .4s;
       transition: .4s;
@@ -522,6 +524,16 @@
 
     .button_base.save_load_button.red:hover {
       border-bottom-color: #b32720;
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+
+    .button_base.save_load_button.default {
+      border-bottom-color: #5a5a94;
+    }
+
+    .button_base.save_load_button.default:hover {
+      border-bottom-color: #4646a6;
       -webkit-transition: .4s;
       transition: .4s;
     }
@@ -652,7 +664,7 @@
       </button>
     </div>
     <div class="center_object">
-      <button class="button_base save_load_button" onclick="set_save_load_menu(false)">
+      <button class="button_base save_load_button default" onclick="set_save_load_menu(false)">
         Close
       </button>
     </div>

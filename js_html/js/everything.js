@@ -154,14 +154,14 @@ class Company {
     info_div.innerHTML = `<div class='stock_list_subsubcolumn'>$${
       this.current_price
     }</div> <div class='stock_list_subsubcolumn'><span style='color: ${
-      this.previous_price > this.current_price ? "red" : "green"
+      this.previous_price > this.current_price ? "#b32720" : "#34a333"
     }' title='Recent Movement'>${
       this.previous_price > this.current_price ? "-" : ""
     }$${Math.abs(
       this.current_price - this.previous_price
-    )}</span></div>  <div class='stock_list_subsubcolumn'><span title='Daily Minimum / Daily Maximum'><span style='color: red'>$${
+    )}</span></div>  <div class='stock_list_subsubcolumn'><span title='Daily Minimum / Daily Maximum'><span style='color: #b32720'>$${
       this.minimum_daily_value
-    }</span> / <span style='color: green'>$${
+    }</span> / <span style='color: #34a333'>$${
       this.maximum_daily_value
     }</span></span></div>`;
 
@@ -260,12 +260,10 @@ function update_company_entry_button(company_ticker) {
     ticker_to_company[company_ticker] === primary_ticker_company
   ) {
     // The company is in a ticker slot
-    //element.style.backgroundColor = "red";
     set_button_select_color(`stock_list_button_${company_ticker}`, true);
     element.innerText = "Remove";
   } else {
     // The company isn't in a ticker slot
-    //element.style.backgroundColor = "green";
     set_button_select_color(`stock_list_button_${company_ticker}`, false);
     element.innerText = "Add";
   }
@@ -1061,11 +1059,11 @@ function set_day_end_report(on = true) {
       if (cash == starting_cash) {
         element.style.color = "#d9d9db";
       } else {
-        element.style.color = "green";
+        element.style.color = "#34a333";
       }
     } else {
       element.textContent = `Cash Lost: -$${Math.abs(cash - starting_cash)}`;
-      element.style.color = "red";
+      element.style.color = "#b32720";
     }
 
     element = document.getElementById("day_end_report_shares");

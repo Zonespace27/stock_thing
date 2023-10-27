@@ -13,10 +13,10 @@
 #525257 - Ticker Button Disabled
 
 #2d5c2c - Button Good
-#34a333 - Button Good Hover
+#34a333 - Button Good Hover, Green Text
 
 #663836 - Button Bad
-#b32720 - Button Bad Hover
+#b32720 - Button Bad Hover, Red Text
 
 #353536 - Stock List Entry, Confirmation Menus Background
 #242429 - Confirmation Menu Button Background
