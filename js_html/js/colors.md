@@ -4,7 +4,7 @@
 
 #4a4a4d - Head Button
 #6a6a6b - Head Button Disabled
-#5a5a94 - Head Button Non-Selected Bottom Border
+#666694 - Head Button Non-Selected Bottom Border
 #6c6ca1 - Head Button Disabled Bottom Border
 #4646a6 - Head Button Hover Bottom Border
 #3232b8 - Head Button Selected Bottom Border
