@@ -20,10 +20,11 @@ var ticker_to_company = {};
 
 const company_data = [
   {
+    // Midrange stock that is about as generic as it gets
     company_name: "Fizzbuzz Inc.",
     ticker: "FZBZ",
-    y_axis_offset: 1000,
-    sin_multiplier: 750,
+    y_axis_offset: 350,
+    sin_multiplier: 550,
     period_divider: 1.5,
     sin_progression: 0.5,
   },
@@ -35,13 +36,16 @@ const company_data = [
     period_divider: 2,
   },
   {
+    // High-cost stock susceptible to large swings
     company_name: "Weston-Yamada Corp.",
     ticker: "WY",
     y_axis_offset: 1000,
-    sin_multiplier: 3,
-    period_divider: 2,
+    sin_multiplier: 8,
+    period_divider: 1.5,
+    sin_progression: 0.8,
   },
   {
+    // Steady high-cost stock
     company_name: "Macrosoft Inc.",
     ticker: "MCSF",
     y_axis_offset: 1000,
@@ -68,6 +72,15 @@ const company_data = [
     y_axis_offset: 1000,
     sin_multiplier: 3,
     period_divider: 2,
+  },
+  {
+    // cheap stock, not a lot of variance
+    company_name: "BargainBins Ltd.",
+    ticker: "BGBN",
+    y_axis_offset: 50,
+    sin_multiplier: 3.5,
+    period_divider: 0.8,
+    sin_progression: 0.15,
   },
 ];
 
@@ -182,23 +195,43 @@ function list_companies() {
   company_list.forEach((company) => create_company_entry(company));
 }
 
+/**
+ * An int representing how many company entries have been made so far
+ */
+var entry_number = 0;
+
 function create_company_entry(company) {
+  entry_number++;
+
   let new_div = document.createElement("div");
   new_div.classList.add("stock_list_column");
+
+  if (entry_number % 2 == 0) {
+    new_div.classList.add("float_right");
+  }
+  if (entry_number <= 2) {
+    new_div.classList.add("pad_top");
+  }
+
   new_div.id = `stock_column_${company.ticker}`;
+
+  let new_div_2 = document.createElement("div");
+  new_div.classList.add("stock_list_column_container");
+  new_div.id = `stock_column_container_${company.ticker}`;
 
   let text_div = document.createElement("div");
   text_div.classList.add("stock_list_subcolumn_text");
   text_div.id = `stock_subcolumn_text_${company.ticker}`;
-  text_div.innerHTML = `<div class='stock_list_subsubcolumn'>${company.ticker}</div><div class='stock_list_subsubcolumn'><button id='stock_list_button_${company.ticker}' onclick='stock_list_add_remove_press("${company.ticker}")'>Aeiou</button></div>`;
+  text_div.innerHTML = `<div class='stock_list_subsubcolumn'>${company.ticker}</div><div class='stock_list_subsubcolumn center_object'><button class='button_base stock_list_column_button' id='stock_list_button_${company.ticker}' onclick='stock_list_add_remove_press("${company.ticker}")'>Aeiou</button></div>`;
 
   let info_div = document.createElement("div");
   info_div.classList.add("stock_list_subcolumn_info");
   info_div.id = `stock_subcolumn_info_${company.ticker}`;
   info_div.innerHTML = "Hello";
 
-  new_div.appendChild(text_div);
-  new_div.appendChild(info_div);
+  new_div.appendChild(new_div_2);
+  new_div_2.appendChild(text_div);
+  new_div_2.appendChild(info_div);
   let parent_element = document.getElementById("stock_list");
   parent_element.appendChild(new_div);
 }
@@ -221,11 +254,13 @@ function update_company_entry_button(company_ticker) {
     ticker_to_company[company_ticker] === primary_ticker_company
   ) {
     // The company is in a ticker slot
-    element.style.backgroundColor = "red";
+    //element.style.backgroundColor = "red";
+    set_button_select_color(`stock_list_button_${company_ticker}`, true);
     element.innerText = "Remove";
   } else {
     // The company isn't in a ticker slot
-    element.style.backgroundColor = "green";
+    //element.style.backgroundColor = "green";
+    set_button_select_color(`stock_list_button_${company_ticker}`, false);
     element.innerText = "Add";
   }
 }
@@ -303,7 +338,7 @@ function trading_day_button_appear() {
     element.style.display = "none";
     element = document.getElementById("start_day_button");
     element.classList.remove("animate_appear");
-  }, 2400); // this number is hand-picked to cause minimum jank
+  }, 2100); // this number is hand-picked to cause minimum jank
 }
 
 function trading_day_button_disappear() {
@@ -343,6 +378,8 @@ function disable_trading_buttons(boolean_set = true) {
   element.disabled = boolean_set;
 }
 
+function set_start_day_button_disabled(disable = false) {}
+
 /*
  * Chart stuff
  */
@@ -363,7 +400,7 @@ function init_chart(chart_id, ticker = "", primary_ticker = false) {
       datasets: [
         {
           data: [300, 700, 2000, 1000, 2000, 2000, 2000, 1000, 200, 100],
-          borderColor: "blue",
+          borderColor: "#1e589e",
           fill: false,
         },
       ],
@@ -404,12 +441,14 @@ function init_chart(chart_id, ticker = "", primary_ticker = false) {
 
 function sin_equation(company) {
   company.sin_value += company.sin_progression;
-  return Math.trunc(
-    (company.sin_multiplier *
-      Math.sin(company.sin_value * company.period_divider) +
-      company.y_axis_offset *
-        (Math.round(10 * Math.abs(0.5 + Math.random())) / 10)) *
-      1
+  return Math.abs(
+    Math.trunc(
+      (company.sin_multiplier *
+        Math.sin(company.sin_value * company.period_divider) +
+        company.y_axis_offset *
+          (Math.round(10 * Math.abs(0.5 + Math.random())) / 10)) *
+        1
+    )
   );
 }
 
@@ -796,8 +835,8 @@ function get_share_difference() {
  * String ID of the currently focused page
  */
 
-const PAGE_INFO = "Info";
-const PAGE_TRADE = "Trade";
+const PAGE_INFO = "information_interface";
+const PAGE_TRADE = "trade_interface";
 
 var current_page = PAGE_TRADE;
 
@@ -832,7 +871,10 @@ function set_button_select_color(button_id = "", selected = true) {
     return;
   }
 
-  button.style.borderBottomColor = selected ? "#3232b8" : "#666694";
+  button.style.borderBottomColor = selected ? "#3232b8" : "#5a5a94";
+  button.style.boxShadow = selected
+    ? "inset 0 -18px 18px -18px #3232b8"
+    : "none";
 }
 
 // Save button code
@@ -998,7 +1040,7 @@ function set_day_end_report(on = true) {
     if (cash >= starting_cash) {
       element.textContent = `Cash Earned: $${cash - starting_cash}`;
       if (cash == starting_cash) {
-        element.style.color = "black";
+        element.style.color = "#d9d9db";
       } else {
         element.style.color = "green";
       }

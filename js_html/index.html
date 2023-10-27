@@ -8,6 +8,7 @@
   <style>
     body {
         margin: 0;
+        background-color: #474747;
     }
 
     .head_row {
@@ -20,18 +21,51 @@
         clear: both;
     }
 
-    .head_row_button {
+    .button_base {
       background-color: #4a4a4d;
       border: none;
       border-bottom-color: #666694;
       border-bottom-width: 3px;
       border-bottom-style: solid;
       border-radius: 3px 3px 1px 1px;
+      color: #d9d9db;
+    }
+
+    .button_base:hover {
+      border-bottom-color: #4646a6;
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+
+    .button_base:disabled {
+      background-color: #6a6a6b;
+      -webkit-transition: .4s;
+      transition: .4s;
+      border-bottom-color: #6a6a6b;
+    }
+
+    .button_base:enabled {
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+
+    .button_base.stock_list_column_button {
+      width: 80%;
+    }
+
+    .button_base.stock_list_column_button:hover {
+      border-bottom-color: #4646a6;
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+
+    .text_color {
+      color: #d9d9db;
     }
     
     .bottom_row {
-        border: 0px solid gray;
         z-index: 2;
+        background-color: #232324;
     }    
 
     .bottom_row:after {
@@ -40,8 +74,13 @@
         clear: both;
     }
 
+    .stock_interface {
+      z-index: 4;
+    }
+
     .stock_list {
-      border: 0px
+      border: 0px;
+      background-color: #474747;
     }
 
     .stock_list:after {
@@ -70,18 +109,28 @@
   
     .stock_list_column {
         float: left;
-        width: 50%;
+        width: 49.5%;
+        max-width: 50%;
         padding-top: 12px;
         padding-bottom: 12px;
+        margin-bottom: 1%;
         height: 100%;
+        background-color: #474747;
         z-index: 4;
-        background-color: white;
     }
 
     .stock_list_column:after {
         content: "";
         display: table;
         clear: both;
+    }
+
+    .stock_list_column.float_right {
+      float: right;
+    }
+
+    .stock_list_column.pad_top {
+      margin-top: 1%;
     }
 
     .stock_list_subcolumn_text {
@@ -91,6 +140,12 @@
         margin-left: 5%;
         margin-right: -5%;
         z-index: 5;
+        color: #d9d9db;
+    }
+
+    .stock_list_column_container {
+      background-color: #353536;
+      border-radius: 4px;
     }
 
     .stock_list_subcolumn_info {
@@ -105,17 +160,22 @@
         width: 33%;
         height: 100%;
         z-index: 6;
+        color: #d9d9db;
     }
     
     .main_ticker {
         height: 400px;
         width: 60%;
-        outline: 2px solid orange;
         float: left;
     }
     
+    .primary_ticker {
+      width: 100%;
+      max-height: 80%;
+      background-color: #474747;
+    }
+    
     .secondary_tickers {
-        outline: 2px solid blue;
         height: 400px;
         float: right;
         width: 40%; 
@@ -130,13 +190,26 @@
     .secondary_ticker {
         height: 20%;
         text-align: center;
-        background-color: red;
+        background-color: #474747;
+        border-left: black;
+        border-left-width: 2px;
+        border-left-style: solid;
+        border-bottom: #616161;
+        border-bottom-width: 0px;
+        border-bottom-style: solid;
+    }
+    
+    .secondary_ticker_info_name {
+      color: #d9d9db
+    }
+
+    .secondary_ticker_info_ticker {
+      color: #d9d9db
     }
 
     .information_wrapper {
         height: 400px;
         width: 70%;
-        outline: 2px solid orange;
         float: right;
     }
 
@@ -145,7 +218,6 @@
     }
 
     .information_tab {
-        outline: 2px solid blue;
         height: 400px;
         float: left;
         width: 30%; 
@@ -160,13 +232,14 @@
     .information_section {
         height: 20%;
         text-align: center;
-        background-color: red;
     }
 
-    .information_button {
+    .button_base.information_button {
         width: 100%;
         height: 100%;
         display: block;
+        border-radius: 0px;
+        border-bottom-width: 5px;
     }
 
     .secondary_ticker_divider {
@@ -175,8 +248,9 @@
 
     .secondary_ticker_info {
       float: left;
-      background-color: yellowgreen;
+      background-color: #39393b;
       height: 100%;
+      max-height: 100%;
       padding-left: 4px;
       padding-right: 4px;
       width: 12%;
@@ -189,7 +263,7 @@
 
     .main_ticker_info {
       height: 10%;
-      background-color: aqua;
+      background-color: #39393b;
     }
 
     .main_ticker_info_section {
@@ -197,23 +271,62 @@
       width: 25%;
       height: 100%;
       text-align: center;
-      background-color: aquamarine;
       display: flex;
       justify-content: center;
       align-items: center;
+      color: #d9d9db;
     }
 
     .main_ticker_buy_sell {
       height: 10%;
-      background-color: blueviolet;
     }
 
-    .main_ticker_button {
-      background-color: green;
+    .button_base.main_ticker_button {
+      background-color: #313136;
+      border-bottom-color: #2d5c2c;
+      border-bottom-width: 5px;
       float: left;
       width: 50%;
       height: 100%;
       z-index: 1;
+    }
+
+    .button_base.main_ticker_button:disabled {
+      background-color: #6a6a6b;
+      -webkit-transition: .4s;
+      transition: .4s;
+      border-bottom-color: #6a6a6b;
+      border-bottom-width: 0px;
+    }
+
+    .button_base.main_ticker_button:enabled {
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+
+    .button_base.main_ticker_button:hover {
+      border-bottom-color: #34a333;
+    }
+
+    .button_base.main_ticker_button.sell {
+      border-bottom-color: #663836;
+    }
+
+    .button_base.main_ticker_button.sell:disabled {
+      background-color: #6a6a6b;
+      -webkit-transition: .4s;
+      transition: .4s;
+      border-bottom-color: #6a6a6b;
+      border-bottom-width: 0px;
+    }
+
+    .button_base.main_ticker_button.sell:enabled {
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+    
+    .button_base.main_ticker_button.sell:hover {
+      border-bottom-color: #b32720;
     }
 
     .main_ticker_button_div {
@@ -351,8 +464,8 @@
       right: 35%;
       bottom: 45%;
       top: 35%;
-      background-color: white;
-      border: solid 2px gray;
+      background-color: #353536;
+      border: solid 2px #232324;
       z-index: 4;
       display: none;
     }
@@ -361,43 +474,48 @@
       height: 88%
     }
 
-    .day_end_button {
+    .button_base.day_end_button {
+      background-color: #242429;
       float: left;
       width: 100%;
       height: 30%;
-      background: rgb(15, 100, 5);
-      -webkit-transition: .2s;
-      transition: background .2s;
+      border-bottom-color: #2d5c2c;
+      -webkit-transition: .4s;
+      transition: .4s;
+      margin-bottom: 10%;
     }
 
-    .day_end_button:hover {
-      background: rgb(85, 120, 75);
-      -webkit-transition: .2s;
-      transition: background .2s;
+    .button_base.day_end_button:hover {
+      border-bottom-color: #34a333;
+      -webkit-transition: .4s;
+      transition: .4s;
     }
 
-    .save_load_button {
+    .button_base.save_load_button {
       width: 95%;
       height: 30%;
       margin-top: 2%;
       margin-bottom: 3%;
-      background: rgb(15, 100, 5);
-      -webkit-transition: .2s;
-      transition: background .2s;
+      background-color: #242429;
+      border-bottom-color: #2d5c2c;
+      -webkit-transition: .4s;
+      transition: .4s;
     }
 
     .save_load_button:hover {
-      background: rgb(85, 120, 75);
-      -webkit-transition: .2s;
-      transition: background .2s;
+      border-bottom-color: #34a333;
+      -webkit-transition: .4s;
+      transition: .4s;
     }
 
-    .save_load_button.red {
-      background: rgb(235, 10, 15);
+    .button_base.save_load_button.red {
+      border-bottom-color: #663836;
     }
 
-    .save_load_button.red:hover {
-      background: rgb(255, 80, 85);
+    .button_base.save_load_button.red:hover {
+      border-bottom-color: #b32720;
+      -webkit-transition: .4s;
+      transition: .4s;
     }
 
     .save_load_menu {
@@ -406,26 +524,44 @@
       right: 40%;
       bottom: 50%;
       top: 30%;
-      background-color: white;
-      border: solid 2px gray;
+      background-color: #353536;
+      border: solid 2px #232324;
       z-index: 4;
       display: none;
     }
 
-    .start_day_button {
-      background-color: lightblue;
+    .button_base.start_day_button {
+      background-color: #313136;
       width: 100%;
       height: 100%;
+      border-bottom-width: 5px;
       float: right;
     }
 
-    .start_day_button.animate_disappear {
+    .button_base.start_day_button:disabled {
+      background-color: #525257;
+      border-bottom-color: #6c6c91;
+      border-bottom-width: 0px;
+      background-image: repeating-linear-gradient(
+        -45deg,
+        transparent 0 20px,
+      #1f1f1f 20px 40px
+      );
+      color: #a4a4ab
+    }
+
+    .button_base.start_day_button:enabled {
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+
+    .button_base.start_day_button.animate_disappear {
       animation-name: start_day_button_animate_disappear;
       animation-duration: 3s;
       animation-fill-mode: forwards;
     }
 
-    .start_day_button.animate_appear {
+    .button_base.start_day_button.animate_appear {
       animation-name: start_day_button_animate_appear;
       animation-duration: 3s;
       animation-fill-mode: forwards;
@@ -449,7 +585,7 @@
 </head>
 <body>
   <div class="darken_overlay" id="dimmer"></div>  
-  <div class="buy_sell_confirmation" id="buy_sell_confirmation">
+  <div class="buy_sell_confirmation text_color" id="buy_sell_confirmation">
     <div class="buy_sell_confirmation_container">
       <div class="center_object" style="margin-bottom: 5%;" id="buy_sell_confirmation_question">
         How many shares of TICKER would you like to purchase?
@@ -470,61 +606,61 @@
       </button>
     </div>
   </div>
-  <div class="day_end_report" id="day_end_report">
+  <div class="day_end_report text_color" id="day_end_report">
     <div class="buy_sell_confirmation_container">
       <div class="center_object" style="margin-bottom: 5%;">
         End of Day Report
       </div>
-      <div class="day_end_report_funds" id="day_end_report_funds">
-        Cash: $000
+      <div class="day_end_report_funds text_color" id="day_end_report_funds">
+        Cash Earned: $000
       </div>
       <div class="day_end_report_shares" id="day_end_report_shares">
         Share Value:
       </div>
     </div>
     <div>
-      <button class="day_end_button" onclick="day_end_report_continue()">
+      <button class="button_base day_end_button" onclick="day_end_report_continue()">
         Continue to Next Day
       </button>
     </div>
   </div>
   <div class="save_load_menu" id="save_load_menu">
-    <div class="center_object" style="margin-top: 2%">
+    <div class="center_object text_color" style="margin-top: 2%">
       <b>Save Menu</b>
     </div>
     <div class="center_object">
-      <button class="save_load_button" onclick="save_button_press()">
+      <button class="button_base save_load_button" onclick="save_button_press()">
         Save
       </button>
     </div>
     <div class="center_object">
-      <button class="save_load_button" onclick="load_button_press()">
+      <button class="button_base save_load_button" onclick="load_button_press()">
         Load
       </button>
     </div>
     <div class="center_object">
-      <button class="save_load_button red" onclick="new_save_press()">
+      <button class="button_base save_load_button red" onclick="new_save_press()">
         New Game
       </button>
     </div>
     <div class="center_object">
-      <button class="save_load_button" onclick="set_save_load_menu(false)">
+      <button class="button_base save_load_button" onclick="set_save_load_menu(false)">
         Close
       </button>
     </div>
   </div>
   <div class="head_row">
     <div class="top_column">
-      <button class="head_row_button" id="headrow_info_button" onclick="headrow_info()">Information</button>
+      <button class="button_base" id="headrow_info_button" onclick="headrow_info()">Information</button>
     </div>
     <div class="top_column">
-      <button class="head_row_button" id="headrow_trade_button" onclick="headrow_trade()">Trading</button>
+      <button class="button_base" id="headrow_trade_button" onclick="headrow_trade()">Trading</button>
     </div>
     <div class="top_column">
-      <button class="head_row_button">News</button>
+      <button class="button_base">News</button>
     </div>
     <div class="top_column">
-      <button class="head_row_button" id="save_load_button" onclick="set_save_load_menu(true)">Save/Load</button>
+      <button class="button_base" id="save_load_button" onclick="set_save_load_menu(true)">Save/Load</button>
     </div>
   </div>
 
@@ -532,33 +668,33 @@
   <div class="information_interface" id="information_interface">
     <div class="information_tab">
       <div class="information_section">
-        <button class="information_button" id="info_button_1" onclick="info_button_1_press()">
+        <button class="button_base information_button" id="info_button_1" onclick="info_button_1_press()">
           1: Basics
         </button>
       </div>
       <div class="information_section">
-        <button class="information_button" id="info_button_2" onclick="info_button_2_press()">
+        <button class="button_base information_button" id="info_button_2" onclick="info_button_2_press()">
           2: Empty
         </button>
       </div>
       <div class="information_section">
-        <button class="information_button" id="info_button_3" onclick="info_button_3_press()">
+        <button class="button_base information_button" id="info_button_3" onclick="info_button_3_press()">
           3: Game
         </button>
       </div>
       <div class="information_section">
-        <button class="information_button" id="info_button_4" onclick="info_button_4_press()">
+        <button class="button_base information_button" id="info_button_4" onclick="info_button_4_press()">
           4: Empty
         </button>
       </div>
       <div class="information_section">
-        <button class="information_button" id="info_button_5" onclick="info_button_5_press()">
+        <button class="button_base information_button" id="info_button_5" onclick="info_button_5_press()">
           5: Empty
         </button>
       </div>
     </div>
     <div class="information_wrapper">
-      <div class="information_body" id="info_body">
+      <div class="information_body text_color" id="info_body">
         Hello
       </div>
     </div>
@@ -581,27 +717,27 @@
           Share Value
         </div>
       </div>
-      <canvas id="primary" style="width: 100%; max-height: 80%"></canvas>
+      <canvas id="primary" class="primary_ticker"></canvas>
       <script>
         init_chart("primary", "FZBZ", true);
       </script>
       <div class="main_ticker_buy_sell">
         <div class="main_ticker_button_div" id="main_ticker_buy_buttons">
-          <button class="main_ticker_button" id="main_ticker_button_buy1" onclick="buy_button_1_press()">
+          <button class="button_base main_ticker_button" id="main_ticker_button_buy1" onclick="buy_button_1_press()">
             Buy 1
           </button>
-          <button class="main_ticker_button" id="main_ticker_button_buyamount" onclick="buy_button_amount_press()">
+          <button class="button_base main_ticker_button" id="main_ticker_button_buyamount" onclick="buy_button_amount_press()">
             Buy Amount
           </button>
         </div>
-        <button class="start_day_button" id="start_day_button" onclick="start_day_button_press()">
+        <button class="button_base start_day_button" id="start_day_button" onclick="start_day_button_press()">
           Start Trading Day
-        </button>
+        </button> 
         <div class="main_ticker_button_div" id="main_ticker_sell_buttons" style="float: left">
-          <button class="main_ticker_button" id="main_ticker_button_sell1" style="background-color: red;" onclick="sell_button_1_press()">
+          <button class="button_base main_ticker_button sell" id="main_ticker_button_sell1" onclick="sell_button_1_press()">
             Sell 1
           </button>
-          <button class="main_ticker_button" id="main_ticker_button_sellamount" style="background-color: red;" onclick="sell_button_amount_press()">
+          <button class="button_base main_ticker_button sell" id="main_ticker_button_sellamount" onclick="sell_button_amount_press()">
             Sell Amount
           </button>
         </div>
@@ -622,7 +758,7 @@
           init_chart("base2", "FBR");
         </script>
       </div>
-      <div class="secondary_ticker_divider"></div>
+      
       <div class="secondary_ticker">
         <div class="secondary_ticker_info">
           <div class="secondary_ticker_info_name" id="st_info_name_base3">
@@ -637,7 +773,7 @@
           init_chart("base3", "WY");
         </script>
       </div>
-      <div class="secondary_ticker_divider"></div>
+      
       <div class="secondary_ticker">
         <div class="secondary_ticker_info">
           <div class="secondary_ticker_info_name" id="st_info_name_base4">
@@ -652,7 +788,7 @@
           init_chart("base4", "MCSF");
         </script>
       </div>
-      <div class="secondary_ticker_divider"></div>
+      
       <div class="secondary_ticker">
         <div class="secondary_ticker_info">
           <div class="secondary_ticker_info_name" id="st_info_name_base5">
@@ -667,7 +803,7 @@
           init_chart("base5", "BB");
         </script>
       </div>
-      <div class="secondary_ticker_divider"></div>
+      
       <div class="secondary_ticker">
         <div class="secondary_ticker_info">
           <div class="secondary_ticker_info_name" id="st_info_name_base6">
@@ -687,13 +823,13 @@
   <!-- The div for the overall stock list-->
   <div class="stock_list" id="stock_list"></div>
   <div class="bottom_row">
-    <div class="bottom_column" style="background-color:#ddd; text-align: left">
-      <div style="padding-left: 20%" id="date_time">
+    <div class="bottom_column" style="text-align: left">
+      <div style="padding-left: 20%" class="text_color" id="date_time">
         9:30 AM, October 18, 2023
       </div>
     </div>
-    <div class="bottom_column" style="background-color:#ddd; text-align: right">
-      <div style="padding-right: 20%" id="cash_count">
+    <div class="bottom_column" style="text-align: right">
+      <div style="padding-right: 20%" class="text_color" id="cash_count">
         Current Funds: $0,000.00
       </div>
     </div>
@@ -704,5 +840,6 @@
     update_main_ticker_info();
     update_cash();
     update_all_company_entry_buttons();
+    set_button_select_color("headrow_trade_button", true);
   </script>
 </body>
