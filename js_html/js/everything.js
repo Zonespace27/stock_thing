@@ -24,23 +24,25 @@ const company_data = [
     company_name: "Fizzbuzz Inc.",
     ticker: "FZBZ",
     y_axis_offset: 350,
-    sin_multiplier: 550,
+    sin_multiplier: 150,
     period_divider: 1.5,
     sin_progression: 0.5,
   },
   {
+    // Cheap stock, not a lot of variance
     company_name: "Foobar Ltd.",
     ticker: "FBR",
-    y_axis_offset: 1000,
-    sin_multiplier: 3,
-    period_divider: 2,
+    y_axis_offset: 65,
+    sin_multiplier: 3.5,
+    period_divider: 0.8,
+    sin_progression: 0.15,
   },
   {
     // High-cost stock susceptible to large swings
     company_name: "Weston-Yamada Corp.",
     ticker: "WY",
     y_axis_offset: 1000,
-    sin_multiplier: 8,
+    sin_multiplier: 60,
     period_divider: 1.5,
     sin_progression: 0.8,
   },
@@ -48,23 +50,27 @@ const company_data = [
     // Steady high-cost stock
     company_name: "Macrosoft Inc.",
     ticker: "MCSF",
-    y_axis_offset: 1000,
+    y_axis_offset: 1300,
     sin_multiplier: 3,
     period_divider: 2,
   },
   {
+    // Midrange
     company_name: "BetterBrick Utd.",
     ticker: "BB",
-    y_axis_offset: 1000,
-    sin_multiplier: 3,
-    period_divider: 2,
+    y_axis_offset: 400,
+    sin_multiplier: 75,
+    period_divider: 1.1,
+    sin_progression: 0.3,
   },
   {
+    // Penny stock
     company_name: "FauxShow Inc.",
     ticker: "FSW",
-    y_axis_offset: 1000,
-    sin_multiplier: 3,
-    period_divider: 2,
+    y_axis_offset: 15,
+    sin_multiplier: 12,
+    period_divider: 0.3,
+    sin_progression: 0.1,
   },
   {
     company_name: "Florstore",
@@ -378,8 +384,6 @@ function disable_trading_buttons(boolean_set = true) {
   element.disabled = boolean_set;
 }
 
-function set_start_day_button_disabled(disable = false) {}
-
 /*
  * Chart stuff
  */
@@ -399,7 +403,7 @@ function init_chart(chart_id, ticker = "", primary_ticker = false) {
       labels: xValues,
       datasets: [
         {
-          data: [300, 700, 2000, 1000, 2000, 2000, 2000, 1000, 200, 100],
+          data: ticker ? ticker_to_company[ticker].chart_data : [],
           borderColor: "#1e589e",
           fill: false,
         },
@@ -466,7 +470,7 @@ function stock_list_add_remove_press(company_ticker) {
     remove_from_secondary_ticker(company_ticker);
   } else {
     if (ticker_to_company[company_ticker] === primary_ticker_company) {
-      remove_from_primary_ticker(company_ticker);
+      remove_from_primary_ticker();
       update_company_entry_button(company_ticker);
       return;
     }
@@ -487,7 +491,7 @@ function add_to_primary_ticker(company_ticker) {
   update_main_ticker_info();
 }
 
-function remove_from_primary_ticker(company_ticker) {
+function remove_from_primary_ticker() {
   if (!primary_ticker_company) {
     return;
   }
@@ -506,10 +510,25 @@ function remove_from_primary_ticker(company_ticker) {
   delete charts["primary"];
 }
 
-function add_to_secondary_ticker(company_ticker) {
+function add_to_secondary_ticker(company_ticker, override_chart_id = "") {
   if (!company_ticker) {
     return;
   }
+  // Alas, JS doesn't support overloading
+  if (override_chart_id) {
+    if (
+      Object.keys(secondary_ticker_companies).indexOf(override_chart_id) === -1
+    ) {
+      return;
+    }
+    let secondary_ticker_entry = secondary_ticker_companies[override_chart_id];
+    if (secondary_ticker_entry) {
+      remove_from_secondary_ticker(secondary_ticker_entry.ticker);
+    }
+    init_chart(override_chart_id, company_ticker, false);
+    return;
+  }
+
   let created_chart = false;
   Object.keys(secondary_ticker_companies).forEach((chart_id) => {
     if (created_chart || secondary_ticker_companies[chart_id]) {
@@ -666,7 +685,7 @@ var start_time = hours_to_minutes(9.5);
 /**
  * The time to end at. The stock market closes at 4:00 PM weekdays.
  */
-var end_time = hours_to_minutes(10);
+var end_time = hours_to_minutes(16);
 
 /**
  * How much time to advance per tick
@@ -1195,6 +1214,28 @@ function on_confirmation_buy_sell() {
     set_sell_confirmation(false);
     update_main_ticker_info();
   }
+}
+
+function secondary_ticker_click(chart_id = "") {
+  if (!chart_id) {
+    return;
+  }
+  let second_ticker_company = secondary_ticker_companies[chart_id];
+  if (!second_ticker_company) {
+    if (!primary_ticker_company) {
+      // We're okay with no secondary ticker only if there is a primary ticker company
+      return;
+    }
+    let main_ticker_company = primary_ticker_company;
+    remove_from_primary_ticker();
+    add_to_secondary_ticker(main_ticker_company.ticker, chart_id);
+    return;
+  }
+  let main_ticker_company = primary_ticker_company;
+  remove_from_primary_ticker();
+  remove_from_secondary_ticker(second_ticker_company.ticker);
+  add_to_secondary_ticker(main_ticker_company.ticker, chart_id);
+  add_to_primary_ticker(second_ticker_company.ticker);
 }
 
 // Buy/sell buttons
