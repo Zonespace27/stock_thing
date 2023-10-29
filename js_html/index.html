@@ -38,11 +38,16 @@
     }
 
     .button_base:disabled {
-      background-color: #6a6a6b;
-      -webkit-transition: .4s;
-      transition: .4s;
-      border-bottom-color: #6a6a6b !important;
-      cursor: default;
+      background-color: #525257;
+      border-bottom-color: #6c6c91;
+      border-bottom-width: 0px;
+      background-image: repeating-linear-gradient(
+        -45deg,
+        transparent 0 20px,
+      #1f1f1f 20px 40px
+      );
+      color: #a4a4ab;
+      cursor: default
     }
 
     .button_base:enabled {
@@ -267,6 +272,10 @@
       display: none;
     }
 
+    .upgrade_interface {
+      display: none;
+    }
+
     .main_ticker_info {
       height: 10%;
       background-color: #39393b;
@@ -298,11 +307,16 @@
     }
 
     .button_base.main_ticker_button:disabled {
-      background-color: #6a6a6b;
-      -webkit-transition: .4s;
-      transition: .4s;
-      border-bottom-color: #6a6a6b !important;
+      background-color: #525257;
+      border-bottom-color: #6c6c91;
       border-bottom-width: 0px;
+      background-image: repeating-linear-gradient(
+        -45deg,
+        transparent 0 20px,
+      #1f1f1f 20px 40px
+      );
+      color: #a4a4ab;
+      cursor: default
     }
 
     .button_base.main_ticker_button:enabled {
@@ -319,11 +333,16 @@
     }
 
     .button_base.main_ticker_button.sell:disabled {
-      background-color: #6a6a6b;
-      -webkit-transition: .4s;
-      transition: .4s;
-      border-bottom-color: #6a6a6b !important;
+      background-color: #525257;
+      border-bottom-color: #6c6c91;
       border-bottom-width: 0px;
+      background-image: repeating-linear-gradient(
+        -45deg,
+        transparent 0 20px,
+      #1f1f1f 20px 40px
+      );
+      color: #a4a4ab;
+      cursor: default
     }
 
     .button_base.main_ticker_button.sell:enabled {
@@ -677,7 +696,7 @@
       <button class="button_base" id="headrow_trade_button" onclick="headrow_trade()">Trading</button>
     </div>
     <div class="top_column">
-      <button class="button_base">News</button>
+      <button class="button_base" id="headrow_upgrade_button" onclick="headrow_upgrades()">Upgrades</button>
     </div>
     <div class="top_column">
       <button class="button_base" id="save_load_button" onclick="set_save_load_menu(true)">Save/Load</button>
@@ -840,6 +859,12 @@
       </div>
     </div>
   </div>
+
+  <!-- The div for the upgrade tab -->
+  <div class="upgrade_interface" id="upgrade_interface">
+    
+  </div>
+
   <!-- The div for the overall stock list-->
   <div class="stock_list" id="stock_list"></div>
   <div class="bottom_row">

@@ -107,6 +107,7 @@ class Company {
     this.sin_progression = sin_progression; // How much to progress sin_value by
     this.previous_price = 0;
     this.current_price = 0;
+
     /**
      * The last [max_data_points] pieces of historical price data
      */
@@ -117,10 +118,31 @@ class Company {
      * The lowest value this stock has been on a given trading day
      */
     this.minimum_daily_value = 0;
+
     /**
      * The lowest value this stock has been on a given trading day
      */
     this.maximum_daily_value = 0;
+
+    /**
+     * At the start of each day, a company will (sometimes) ease itself to a new y_axis_offset.
+     */
+    this.daily_trajectory = 0.0;
+
+    /**
+     * The maximum a company can shift +- in a day, in percentage
+     */
+    this.daily_trajectory_upper_bound = 0.15;
+
+    /**
+     * Chance for a company's trajectory to shift in a day
+     */
+    this.trajectory_shift_chance = 0.8;
+
+    /**
+     * The y_axis_offset of a company at the start of the day, before trajectory starts to shift it.
+     */
+    this.old_y_axis_offset = y_axis_offset;
 
     /**
      * The current value put through sin_equation. Starts as a random int between 0 and 1 rounded to the nearest 10th place
@@ -139,6 +161,14 @@ class Company {
       this.minimum_daily_value === 0
     ) {
       this.minimum_daily_value = new_price;
+    }
+    if (this.daily_trajectory) {
+      let current_day_progress = Number(
+        (current_time / (end_time - start_time)).toFixed(2)
+      );
+      this.y_axis_offset =
+        this.old_y_axis_offset *
+        ((1 + this.daily_trajectory) * current_day_progress);
     }
 
     this.previous_price = this.current_price;
@@ -175,6 +205,16 @@ class Company {
       this.linked_chart.data.datasets[0].data = this.chart_data;
       this.linked_chart.update();
     }
+  }
+  set_daily_trajectory() {
+    this.old_y_axis_offset = Math.round(this.y_axis_offset);
+    if (Math.random() > this.trajectory_shift_chance) {
+      return;
+    }
+    this.daily_trajectory = random_num(
+      -this.daily_trajectory_upper_bound,
+      this.daily_trajectory_upper_bound
+    );
   }
 }
 
@@ -559,8 +599,12 @@ function remove_from_secondary_ticker(company_ticker) {
  * Math functions
  */
 
-function hours_to_minutes(hour) {
-  return hour * 60;
+function hours_to_minutes(hours) {
+  return hours * 60;
+}
+
+function minutes_to_hours(minutes) {
+  return minutes / 60;
 }
 
 function seconds_to_ms(seconds) {
@@ -602,6 +646,10 @@ function pretty_cash() {
   let final_string = cash.toLocaleString();
   final_string = final_string.concat(".00");
   return final_string;
+}
+
+function random_num(min = 0, max = 1) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
 // Time stuff
@@ -722,6 +770,13 @@ function start_trading_day() {
   day_in_progress = true;
   start_interval();
   update_save_load_button();
+  set_company_trajectory();
+}
+
+function set_company_trajectory() {
+  company_list.forEach((company) => {
+    company.set_daily_trajectory();
+  });
 }
 
 function end_trading_day() {
@@ -768,7 +823,7 @@ var owned_stocks = {};
 /**
  * The current amount of money the user has
  */
-var cash = 15000;
+var cash = 1000;
 
 function adjust_cash(amount) {
   if (!amount) {
@@ -879,6 +934,10 @@ function headrow_info() {
   set_button_select_color("headrow_trade_button", false);
 }
 
+function headrow_upgrades() {
+  return;
+}
+
 function set_button_select_color(button_id = "", selected = true) {
   if (!button_id) {
     return;
@@ -904,7 +963,6 @@ function save_button_press() {
       company.ticker
     }_chartdata=${company.chart_data.toString()}`;
   });
-  // add something for focused charts here
   document.cookie = `primary_ticker=${
     primary_ticker_company?.ticker || "none"
   }`;
@@ -1316,8 +1374,7 @@ If a company is percieved to do well, people will want to purchase its stock, wh
       element.innerHTML = `
 The game is a trading simulator, where you are tasked to make as much money as possible. 
 To do this, you have access to a trading console where you are able to trade shares of companies over the course of a trading day.
-As you earn more money, more tools and trading options will become available for you to use.<br><br>
-To start, you will only have access to <b>day trading</b>.
+As you earn more money, more tools and trading options will become available for you to use.
       `;
       break;
   }
@@ -1340,6 +1397,19 @@ The second is for the investor to earn money.
 The first and most common way of earning money from investing is through capital appreciation.
 When the stock appreciates, the investor can sell it for the increased value, potentially profiting. 
 The second is that some forms of shares provide a dividend on fixed intervals, giving the investor a direct share of the profits from the company.
+        `;
+      break;
+
+    case INFO_TAB_GAME:
+      focused_info_tab = INFO_SUBTAB_GAME_READING;
+      set_button_return();
+
+      element = document.getElementById("info_body");
+      element.innerHTML = `
+Much like real life, the price of a given stock cannot be fully predicted, but you may be able to identify trends and profit from them.
+Some days, a company's price may fluctuate, but will not shift upwards or downwards in the long term.
+Other days, the price of a company may permanently shift upwards or downwards by a signficant percentage.
+This doesn't have an indicator and happens gradually over the day, so you will need to be astute in order to take advantage of the market.
         `;
       break;
   }
@@ -1374,7 +1444,24 @@ The money and economic faith lost were the primary causes of the Great Depressio
 }
 
 function info_button_4_press() {
-  return;
+  let element;
+  switch (focused_info_tab) {
+    case INFO_TAB_BASIC:
+      focused_info_tab = INFO_SUBTAB_BASIC_READING;
+      set_button_return();
+
+      element = document.getElementById("info_body");
+      element.innerHTML = `
+The stock market is a good way to invest money you aren't using now to let it grow for a later time.
+While banks will do this to a degree, the return value you get from leaving your money in a savings account is almost always outstripped by what you can make on the stock market.
+If you want to invest in the stock market, do your research and pick companies with a proven, successful track record, like Google or Microsoft.
+The stock market, when played conservatively and wisely, will rarely lose you money if you purchase shares of companies and let their value increase over time.
+Day trading, like what is present in this website, is far riskier.<br><br>
+Day trading requires hours of rapt attention, a lot of research, and even then can incur losses.
+If you're looking to invest in the stock market, the wise option is to speak to someone experienced that you trust.
+        `;
+      break;
+  }
 }
 
 function info_button_5_press() {
@@ -1438,7 +1525,7 @@ function set_tab_basic() {
   element.textContent =
     "1.3: How does the stock market interact with the economy?";
   element = document.getElementById("info_button_4");
-  element.textContent = "1.4: Empty";
+  element.textContent = "1.4: Why should I invest in the stock market?";
   element = document.getElementById("info_button_5");
   element.textContent = "Return";
   element = document.getElementById("info_body");
@@ -1451,7 +1538,7 @@ function set_tab_game() {
   element = document.getElementById("info_button_1");
   element.textContent = "3.1: About";
   element = document.getElementById("info_button_2");
-  element.textContent = "3.2: Empty";
+  element.textContent = "3.2: Stock Movement";
   element = document.getElementById("info_button_3");
   element.textContent = "3.3: Empty";
   element = document.getElementById("info_button_4");
