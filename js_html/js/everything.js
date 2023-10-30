@@ -132,12 +132,12 @@ class Company {
     /**
      * The maximum a company can shift +- in a day, in percentage
      */
-    this.daily_trajectory_upper_bound = 0.15;
+    this.daily_trajectory_upper_bound = 0.3;
 
     /**
      * Chance for a company's trajectory to shift in a day
      */
-    this.trajectory_shift_chance = 0.8;
+    this.trajectory_shift_chance = 0.75;
 
     /**
      * The y_axis_offset of a company at the start of the day, before trajectory starts to shift it.
@@ -268,7 +268,7 @@ function create_company_entry(company) {
   let text_div = document.createElement("div");
   text_div.classList.add("stock_list_subcolumn_text");
   text_div.id = `stock_subcolumn_text_${company.ticker}`;
-  text_div.innerHTML = `<div class='stock_list_subsubcolumn'>${company.ticker}</div><div class='stock_list_subsubcolumn center_object'><button class='button_base stock_list_column_button' id='stock_list_button_${company.ticker}' onclick='stock_list_add_remove_press("${company.ticker}")'>Aeiou</button></div>`;
+  text_div.innerHTML = `<div class='stock_list_subsubcolumn'>${company.ticker}</div><div class='stock_list_subsubcolumn center_object' id='stock_list_button_div_${company.ticker}'><button class='button_base stock_list_column_button' id='stock_list_button_${company.ticker}' onclick='stock_list_add_remove_press("${company.ticker}")'>Aeiou</button></div>`;
 
   let info_div = document.createElement("div");
   info_div.classList.add("stock_list_subcolumn_info");
@@ -311,6 +311,185 @@ function update_company_entry_button(company_ticker) {
 
 function update_company_prices() {
   company_list.forEach((company) => company.on_day_tick());
+}
+
+/**
+ * Dict of "upgrade_id" : Upgrade object
+ */
+var upgrade_dict = {};
+
+var purchased_upgrades = [];
+
+var focused_upgrade = "";
+
+class Upgrade {
+  constructor() {
+    this.name = "";
+    this.id = "";
+    this.description = "";
+    this.purchased = false;
+    this.cost = 0;
+    this.hidden = false;
+    this.upgrade_unlocks = [];
+  }
+  /**
+   * What occurs when the upgrade is purchased
+   * @returns void
+   */
+  on_purchase() {
+    if (this.upgrade_unlocks?.length) {
+      this.upgrade_unlocks.forEach((upgrade_id) => {
+        let element = document.getElementById(`upgrade_entry_${upgrade_id}`);
+        element.style.display = "block";
+        upgrade_dict[upgrade_id].hidden = false;
+      });
+    }
+    document.getElementById(`upgrade_entry_${this.id}`).disabled = true;
+    wipe_upgrade_info();
+  }
+  /**
+   * What occurs on each tick of the day once purchased
+   * @returns void
+   */
+  on_day_tick() {
+    return;
+  }
+}
+
+class MovementPredictor extends Upgrade {
+  constructor(
+    name,
+    id,
+    desc,
+    chance,
+    accuracy_chance,
+    cost,
+    hidden,
+    unlock_ids
+  ) {
+    super();
+    this.name = name || "Movement Predictor Parent";
+    this.id = id;
+    this.description =
+      desc ||
+      "Parent of the movement predictor upgrade. Movement predictors will inform the player if a stock will be moving upwards/downwards on a given day. Higher tiers of the upgrade give higher accuracy and potentially how much the stock will be moving.";
+    /**
+     * The % chance (0 to 1) that the upgrade will predict movement of a moving stock
+     */
+    this.prediction_chance = chance;
+    /**
+     * The % chance (0 to 1) that the upgrade will predict the correct movement of a moving stock. Only rolls if it will predict at all
+     */
+    this.prediction_accuracy_chance = accuracy_chance;
+    this.cost = cost;
+    this.hidden = hidden;
+    this.upgrade_unlocks = unlock_ids;
+  }
+  on_purchase() {
+    super.on_purchase();
+    enable_predictor(this.prediction_chance, this.prediction_accuracy_chance);
+  }
+}
+
+function create_upgrade_dict() {
+  upgrade_dict["predictor_1"] = new MovementPredictor(
+    "Basic Prediction Algorithms",
+    "predictor_1",
+    "Purchase an algorithm that will attempt to predict the general movement of a company's stock in the upward or downward direction. Doesn't always work and isn't entirely accurate.",
+    0.25,
+    0.5,
+    1500,
+    false,
+    ["predictor_2"]
+  );
+  upgrade_dict["predictor_2"] = new MovementPredictor(
+    "Advanced Prediction Algorithms",
+    "predictor_2",
+    "Purchase a more advanced version of the previous algorithm to predict the general movement direction of a company's stock. The advancements made in this version increase accuracy and success rate.",
+    0.5,
+    0.75,
+    10000,
+    true,
+    ["predictor_3"]
+  );
+  upgrade_dict["predictor_3"] = new MovementPredictor(
+    "Scientific Prediction Algorithms",
+    "predictor_3",
+    "Purchase an even more advanced algorithm to predict the general movement direction of a company's stock. This beast of an algorithm can predict when a company will move fairly often and is very accurate.",
+    0.75,
+    0.9,
+    45000,
+    true,
+    ["predictor_4"]
+  );
+
+  upgrade_dict["predictor_4"] = new MovementPredictor(
+    "Quantum Prediction Algorithms",
+    "predictor_4",
+    "Purchase an algorithm advanced enough to predict the general movement direction of a company's stock with complete accuracy.",
+    1,
+    1,
+    150000,
+    true
+  );
+  load_upgrade_html();
+}
+
+function load_upgrade_html() {
+  Object.values(upgrade_dict).forEach((upgrade) => {
+    create_upgrade_entry(upgrade);
+  });
+}
+
+function create_upgrade_entry(upgrade) {
+  let new_button = document.createElement("button");
+  if (upgrade.hidden) {
+    new_button.style.display = "none";
+  }
+  new_button.classList.add("upgrade_section");
+  new_button.classList.add("button_base");
+  new_button.id = `upgrade_entry_${upgrade.id}`;
+  new_button.textContent = `${upgrade.name}`;
+  new_button.onclick = function () {
+    upgrade_entry_click(upgrade.id);
+  };
+
+  let parent_element = document.getElementById("upgrade_tab");
+  parent_element.appendChild(new_button);
+}
+
+function upgrade_entry_click(upgrade_id) {
+  if (!upgrade_dict[upgrade_id]) {
+    return;
+  }
+  focused_upgrade = upgrade_id;
+  let element = document.getElementById("upgrade_body");
+  element.innerHTML = upgrade_dict[upgrade_id].description;
+  element = document.getElementById("upgrade_purchase_button");
+  element.style.display = "block";
+  element.textContent = `Purchase ($${upgrade_dict[upgrade_id].cost})`;
+}
+
+function wipe_upgrade_info() {
+  focused_upgrade = "";
+  let element = document.getElementById("upgrade_body");
+  element.innerHTML = "";
+  element = document.getElementById("upgrade_purchase_button");
+  element.style.display = "none";
+  element.textContent = `Purchase ($0000)`;
+}
+
+function upgrade_purchase_button_press() {
+  let upgrade = upgrade_dict[focused_upgrade];
+  if (cash < upgrade.cost) {
+    return false;
+  }
+  if (upgrade.hidden) {
+    return false; // you didn't get this legitimately so no :<
+  }
+  adjust_cash(-upgrade.cost);
+  purchased_upgrades.push(upgrade);
+  upgrade.on_purchase();
 }
 
 function update_main_ticker_info() {
@@ -649,7 +828,7 @@ function pretty_cash() {
 }
 
 function random_num(min = 0, max = 1) {
-  return Math.floor(Math.random() * (max - min + 1) + min);
+  return Math.random() * (max - min) + min;
 }
 
 // Time stuff
@@ -767,10 +946,9 @@ function start_trading_day() {
   current_time = start_time;
   starting_cash = cash;
   Object.assign(starting_shares, owned_stocks);
-  day_in_progress = true;
   start_interval();
-  update_save_load_button();
   set_company_trajectory();
+  set_predictor_values();
 }
 
 function set_company_trajectory() {
@@ -779,11 +957,59 @@ function set_company_trajectory() {
   });
 }
 
+function set_predictor_values() {
+  if (!predictor_enabled) {
+    return;
+  }
+  let text_value = "";
+  let text_color = "";
+  company_list.forEach((company) => {
+    if (Math.random() < predictor_chance) {
+      // Chance succeeded
+      if (Math.random() < predictor_accuracy_chance) {
+        // The prediction is accurate
+        if (company.daily_trajectory < 0) {
+          text_value = "Fall";
+          text_color = "#b32720";
+        } else if (company.daily_trajectory > 0) {
+          text_value = "Rise";
+          text_color = "#34a333";
+        } else {
+          text_value = "None";
+          text_color = "#d9d9db";
+        }
+      } else {
+        // It wasn't accurate, pick one at random
+        let random_value = Math.random();
+        if (random_value <= 0.33) {
+          text_value = "Fall";
+          text_color = "#b32720";
+        } else if (random_value <= 0.67) {
+          text_value = "Rise";
+          text_color = "#34a333";
+        } else {
+          text_value = "None";
+          text_color = "#d9d9db";
+        }
+      }
+    } else {
+      // Chance failed, we dunno
+      text_value = "????";
+      text_color = "#d9d9db";
+    }
+    let element = document.getElementById(
+      `stock_list_predictor_${company.ticker}`
+    );
+    element.textContent = text_value;
+    element.style.color = text_color;
+  });
+}
+
 function end_trading_day() {
   day_in_progress = false;
   clearInterval(day_interval);
   set_day_end_report(true);
-  update_save_load_button();
+  update_headrow_buttons();
 }
 
 function start_interval() {
@@ -824,6 +1050,36 @@ var owned_stocks = {};
  * The current amount of money the user has
  */
 var cash = 1000;
+
+var predictor_enabled = false;
+var predictor_chance = 0;
+var predictor_accuracy_chance = 0;
+
+function enable_predictor(chance, accuracy_chance) {
+  if (predictor_enabled) {
+    predictor_chance = Math.max(predictor_chance, chance);
+    predictor_accuracy_chance = Math.max(
+      predictor_accuracy_chance,
+      accuracy_chance
+    );
+    return;
+  }
+  predictor_enabled = true;
+  predictor_chance = chance;
+  predictor_accuracy_chance = accuracy_chance;
+  company_list.forEach((company) => {
+    let div_element = document.getElementById(
+      `stock_list_button_div_${company.ticker}`
+    );
+    let new_div = document.createElement("div");
+    new_div.classList.add("text_color");
+    new_div.classList.add("predictor_text");
+    div_element.appendChild(new_div);
+    new_div.id = `stock_list_predictor_${company.ticker}`;
+    new_div.textContent = "";
+    new_div.title = "Daily trend prediction";
+  });
+}
 
 function adjust_cash(amount) {
   if (!amount) {
@@ -909,33 +1165,49 @@ function get_share_difference() {
 
 const PAGE_INFO = "information_interface";
 const PAGE_TRADE = "trade_interface";
+const PAGE_UPGRADE = "upgrade_interface";
 
 var current_page = PAGE_TRADE;
 
 // Header buttons
 
 function headrow_trade() {
-  let element = document.getElementById("trade_interface");
+  let element = document.getElementById(PAGE_TRADE);
   element.style.display = "block";
-  element = document.getElementById("information_interface");
+  element = document.getElementById(PAGE_INFO);
+  element.style.display = "none";
+  element = document.getElementById(PAGE_UPGRADE);
   element.style.display = "none";
   current_page = PAGE_TRADE;
   set_button_select_color("headrow_info_button", false);
   set_button_select_color("headrow_trade_button", true);
+  set_button_select_color("headrow_upgrade_button", false);
 }
 
 function headrow_info() {
-  let element = document.getElementById("trade_interface");
+  let element = document.getElementById(PAGE_TRADE);
   element.style.display = "none";
-  element = document.getElementById("information_interface");
+  element = document.getElementById(PAGE_INFO);
   element.style.display = "block";
+  element = document.getElementById(PAGE_UPGRADE);
+  element.style.display = "none";
   current_page = PAGE_INFO;
   set_button_select_color("headrow_info_button", true);
   set_button_select_color("headrow_trade_button", false);
+  set_button_select_color("headrow_upgrade_button", false);
 }
 
 function headrow_upgrades() {
-  return;
+  let element = document.getElementById(PAGE_TRADE);
+  element.style.display = "none";
+  element = document.getElementById(PAGE_INFO);
+  element.style.display = "none";
+  element = document.getElementById(PAGE_UPGRADE);
+  element.style.display = "block";
+  current_page = PAGE_UPGRADE;
+  set_button_select_color("headrow_info_button", false);
+  set_button_select_color("headrow_trade_button", false);
+  set_button_select_color("headrow_upgrade_button", true);
 }
 
 function set_button_select_color(button_id = "", selected = true) {
@@ -1067,12 +1339,16 @@ function set_save_load_menu(open = true) {
   }
 }
 
-function update_save_load_button() {
+function update_headrow_buttons() {
   if (day_in_progress) {
     let element = document.getElementById("save_load_button");
     element.disabled = true;
+    element = document.getElementById("headrow_upgrade_button");
+    element.disabled = true;
   } else {
     let element = document.getElementById("save_load_button");
+    element.disabled = false;
+    element = document.getElementById("headrow_upgrade_button");
     element.disabled = false;
   }
 }
@@ -1328,6 +1604,8 @@ function sell_button_amount_press() {
 
 function start_day_button_press() {
   trading_day_button_disappear();
+  day_in_progress = true;
+  update_headrow_buttons();
   setTimeout(function () {
     start_trading_day();
   }, 2000); // long enough for the animation to settle

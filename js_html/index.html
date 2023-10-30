@@ -47,12 +47,20 @@
       #1f1f1f 20px 40px
       );
       color: #a4a4ab;
-      cursor: default
+      cursor: default;
+      -webkit-transition: .4s;
+      transition: .4s;
     }
 
     .button_base:enabled {
       -webkit-transition: .4s;
       transition: .4s;
+    }
+
+    .button_base.upgrade_purchase_button {
+      width: 25%;
+      height: 10%;
+      display: none;
     }
 
     .button_base.stock_list_column_button {
@@ -217,12 +225,15 @@
 
     .information_wrapper {
         height: 400px;
-        width: 70%;
+        width: 69%;
         float: right;
     }
 
     .information_body {
-        padding: 8px
+        padding: 8px;
+        background-color: #353536;
+        border-radius: 0px 0px 6px 6px;
+        height: 96%;
     }
 
     .information_tab {
@@ -249,7 +260,6 @@
         border-radius: 0px;
         border-bottom-width: 5px;
         background-color: #39393b;
-
     }
 
     .secondary_ticker_divider {
@@ -274,6 +284,56 @@
 
     .upgrade_interface {
       display: none;
+    }
+
+    .upgrade_wrapper {
+        height: 400px;
+        width: 30%;
+        float: right;
+        background-color: #353536;
+        border-radius: 0px 0px 4px 4px;
+    }
+
+    .upgrade_body {
+        padding: 8px
+    }
+
+    .upgrade_tab {
+        height: 400px;
+        float: left;
+        width: 70%; 
+    }
+    
+    .upgrade_tab:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+    
+    .upgrade_section {
+        height: 20%;
+        text-align: center;
+        width: 50%;
+        background-color: #39393b;
+        border-bottom-width: 5px
+    }
+
+    .upgrade_section:disabled {
+      background-color: #525257;
+      border-bottom-color: #6c6c91;
+      border-bottom-width: 0px;
+      background-image: repeating-linear-gradient(
+        -45deg,
+        transparent 0 20px,
+      #1f1f1f 20px 40px
+      );
+      color: #a4a4ab;
+      cursor: default
+    }
+
+    .upgrade_section:enabled {
+      -webkit-transition: .4s;
+      transition: .4s;
     }
 
     .main_ticker_info {
@@ -620,6 +680,11 @@
       border-bottom: 1px dotted black;
     }
 
+    .predictor_text {
+      padding-bottom: 4px;
+      padding-left: 16px;
+    }
+
   </style>
 </head>
 <body>
@@ -733,9 +798,7 @@
       </div>
     </div>
     <div class="information_wrapper">
-      <div class="information_body text_color" id="info_body">
-        Hello
-      </div>
+      <div class="information_body text_color" id="info_body"></div>
     </div>
   </div>
 
@@ -862,7 +925,16 @@
 
   <!-- The div for the upgrade tab -->
   <div class="upgrade_interface" id="upgrade_interface">
-    
+    <div class="upgrade_tab" id="upgrade_tab">
+    </div>
+    <div class="upgrade_wrapper">
+      <div class="upgrade_body text_color" id="upgrade_body"></div>
+      <div class="center_object">
+        <button class="button_base upgrade_purchase_button" id="upgrade_purchase_button" onclick="upgrade_purchase_button_press()">
+          Purchase ($0000)
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- The div for the overall stock list-->
@@ -886,5 +958,6 @@
     update_cash();
     update_all_company_entry_buttons();
     set_button_select_color("headrow_trade_button", true);
+    create_upgrade_dict();
   </script>
 </body>
