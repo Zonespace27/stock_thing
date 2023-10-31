@@ -1,0 +1,141 @@
+.stock_interface {
+  z-index: 4;
+}
+
+.stock_list {
+  border: 0px;
+  background-color: #474747;
+}
+
+.stock_list:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.stock_list_column {
+  float: left;
+  width: 49.5%;
+  max-width: 50%;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  margin-bottom: 1%;
+  height: 100%;
+  background-color: #474747;
+  z-index: 4;
+}
+
+.stock_list_column:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.stock_list_column.float_right {
+  float: right;
+}
+
+.stock_list_column.pad_top {
+  margin-top: 1%;
+}
+
+.stock_list_subcolumn_text {
+  float: left;
+  width: 50%;
+  height: 100%;
+  margin-left: 5%;
+  margin-right: -5%;
+  z-index: 5;
+  color: #d9d9db;
+}
+
+.stock_list_column_container {
+  background-color: #353536;
+  border-radius: 4px;
+}
+
+.stock_list_subcolumn_info {
+  float: left;
+  width: 50%;
+  height: 100%;
+  z-index: 5;
+}
+
+.stock_list_subsubcolumn {
+  float: left;
+  width: 33%;
+  height: 100%;
+  z-index: 6;
+  color: #d9d9db;
+}
+
+.main_ticker {
+  height: 400px;
+  width: 60%;
+  float: left;
+}
+
+.primary_ticker {
+  width: 100%;
+  max-height: 80%;
+  background-color: #474747;
+}
+
+.secondary_tickers {
+  height: 400px;
+  float: right;
+  width: 40%;
+}
+
+.secondary_tickers:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.secondary_ticker {
+  height: 20%;
+  text-align: center;
+  background-color: #474747;
+  border-left: black;
+  border-left-width: 2px;
+  border-left-style: solid;
+  border-bottom: #616161;
+  border-bottom-width: 0px;
+  border-bottom-style: solid;
+}
+
+.secondary_ticker_info_name {
+  color: #d9d9db;
+}
+
+.secondary_ticker_info_ticker {
+  color: #d9d9db;
+  height: 30%;
+  max-height: 30%;
+}
+
+.predictor_text {
+  padding-bottom: 4px;
+  padding-left: 16px;
+}
+
+.main_ticker_info {
+  height: 10%;
+  background-color: #39393b;
+}
+
+.main_ticker_info_section {
+  float: left;
+  width: 25%;
+  height: 100%;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #d9d9db;
+}
+
+.main_ticker_buy_sell {
+  height: 10%;
+}

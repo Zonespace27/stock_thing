@@ -1,0 +1,33 @@
+.information_wrapper {
+  height: 400px;
+  width: 69%;
+  float: right;
+}
+
+.information_body {
+  padding: 8px;
+  background-color: #353536;
+  border-radius: 0px 0px 6px 6px;
+  height: 96%;
+}
+
+.information_tab {
+  height: 400px;
+  float: left;
+  width: 30%;
+}
+
+.information_tab:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.information_section {
+  height: 20%;
+  text-align: center;
+}
+
+.information_interface {
+  display: none;
+}

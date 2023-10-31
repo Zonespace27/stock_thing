@@ -1834,3 +1834,17 @@ function set_tab_game() {
   element = document.getElementById("info_body");
   element.innerHTML = "";
 }
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function () {
+    list_companies();
+    update_company_prices();
+    update_main_ticker_info();
+    update_cash();
+    update_all_company_entry_buttons();
+    set_button_select_color("headrow_trade_button", true);
+    create_upgrade_dict();
+  },
+  false
+);

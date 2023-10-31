@@ -1,0 +1,53 @@
+.upgrade_interface {
+  display: none;
+}
+
+.upgrade_wrapper {
+  height: 400px;
+  width: 30%;
+  float: right;
+  background-color: #353536;
+  border-radius: 0px 0px 4px 4px;
+}
+
+.upgrade_body {
+  padding: 8px;
+}
+
+.upgrade_tab {
+  height: 400px;
+  float: left;
+  width: 70%;
+}
+
+.upgrade_tab:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.upgrade_section {
+  height: 20%;
+  text-align: center;
+  width: 50%;
+  background-color: #39393b;
+  border-bottom-width: 5px;
+}
+
+.upgrade_section:disabled {
+  background-color: #525257;
+  border-bottom-color: #6c6c91;
+  border-bottom-width: 0px;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent 0 20px,
+    #1f1f1f 20px 40px
+  );
+  color: #a4a4ab;
+  cursor: default;
+}
+
+.upgrade_section:enabled {
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}

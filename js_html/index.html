@@ -3,716 +3,73 @@
 <head>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
   <script type="text/javascript" src="js/everything.js"></script>
-  <script>build_companies()</script>
-  <style>
-    body {
-        margin: 0;
-        background-color: #474747;
-    }
-
-    .head_row {
-        background-color: #232324;
-    }
-    
-    .head_row:after {
-        content: "";
-        display: table;
-        clear: both;
-    }
-
-    .button_base {
-      background-color: #4a4a4d;
-      border: none;
-      border-bottom-color: #666694;
-      border-bottom-width: 3px;
-      border-bottom-style: solid;
-      border-radius: 3px 3px 1px 1px;
-      color: #d9d9db;
-      cursor: pointer;
-    }
-
-    .button_base:hover {
-      border-bottom-color: #4646a6 !important;
-      -webkit-transition: .4s;
-      transition: .4s;
-    }
-
-    .button_base:disabled {
-      background-color: #525257;
-      border-bottom-color: #6c6c91;
-      border-bottom-width: 0px;
-      background-image: repeating-linear-gradient(
-        -45deg,
-        transparent 0 20px,
-      #1f1f1f 20px 40px
-      );
-      color: #a4a4ab;
-      cursor: default;
-      -webkit-transition: .4s;
-      transition: .4s;
-    }
-
-    .button_base:enabled {
-      -webkit-transition: .4s;
-      transition: .4s;
-    }
-
-    .button_base.upgrade_purchase_button {
-      width: 25%;
-      height: 10%;
-      display: none;
-    }
-
-    .button_base.stock_list_column_button {
-      width: 80%;
-    }
-
-    .button_base.stock_list_column_button:hover {
-      border-bottom-color: #4646a6 !important;
-      -webkit-transition: .4s;
-      transition: .4s;
-    }
-
-    .text_color {
-      color: #d9d9db;
-    }
-    
-    .bottom_row {
-        z-index: 2;
-        background-color: #232324;
-    }    
-
-    .bottom_row:after {
-        content: "";
-        display: table;
-        clear: both;
-    }
-
-    .stock_interface {
-      z-index: 4;
-    }
-
-    .stock_list {
-      border: 0px;
-      background-color: #474747;
-    }
-
-    .stock_list:after {
-        content: "";
-        display: table;
-        clear: both;
-    }
-
-    .top_column {
-        float: left;
-        width: 25%;
-        padding-top: 10px;
-        padding-bottom: 10px;
-        text-align: center;
-    }
-
-    .bottom_column {
-        float: left;
-        width: 50%;
-        padding-top: 12px;
-        padding-bottom: 12px;
-        text-align: center;
-        height: 100%;
-        z-index: 3;
-    }
-  
-    .stock_list_column {
-        float: left;
-        width: 49.5%;
-        max-width: 50%;
-        padding-top: 12px;
-        padding-bottom: 12px;
-        margin-bottom: 1%;
-        height: 100%;
-        background-color: #474747;
-        z-index: 4;
-    }
-
-    .stock_list_column:after {
-        content: "";
-        display: table;
-        clear: both;
-    }
-
-    .stock_list_column.float_right {
-      float: right;
-    }
-
-    .stock_list_column.pad_top {
-      margin-top: 1%;
-    }
-
-    .stock_list_subcolumn_text {
-        float: left;
-        width: 50%;
-        height: 100%;
-        margin-left: 5%;
-        margin-right: -5%;
-        z-index: 5;
-        color: #d9d9db;
-    }
-
-    .stock_list_column_container {
-      background-color: #353536;
-      border-radius: 4px;
-    }
-
-    .stock_list_subcolumn_info {
-        float: left;
-        width: 50%;
-        height: 100%;
-        z-index: 5;
-    }
-
-    .stock_list_subsubcolumn {
-        float: left;
-        width: 33%;
-        height: 100%;
-        z-index: 6;
-        color: #d9d9db;
-    }
-    
-    .main_ticker {
-        height: 400px;
-        width: 60%;
-        float: left;
-    }
-    
-    .primary_ticker {
-      width: 100%;
-      max-height: 80%;
-      background-color: #474747;
-    }
-    
-    .secondary_tickers {
-        height: 400px;
-        float: right;
-        width: 40%; 
-    }
-    
-    .secondary_tickers:after {
-        content: "";
-        display: table;
-        clear: both;
-    }
-    
-    .secondary_ticker {
-        height: 20%;
-        text-align: center;
-        background-color: #474747;
-        border-left: black;
-        border-left-width: 2px;
-        border-left-style: solid;
-        border-bottom: #616161;
-        border-bottom-width: 0px;
-        border-bottom-style: solid;
-    }
-    
-    .secondary_ticker_info_name {
-      color: #d9d9db
-    }
-
-    .secondary_ticker_info_ticker {
-      color: #d9d9db;
-      height: 30%;
-      max-height: 30%
-    }
-
-    .information_wrapper {
-        height: 400px;
-        width: 69%;
-        float: right;
-    }
-
-    .information_body {
-        padding: 8px;
-        background-color: #353536;
-        border-radius: 0px 0px 6px 6px;
-        height: 96%;
-    }
-
-    .information_tab {
-        height: 400px;
-        float: left;
-        width: 30%; 
-    }
-    
-    .information_tab:after {
-        content: "";
-        display: table;
-        clear: both;
-    }
-    
-    .information_section {
-        height: 20%;
-        text-align: center;
-    }
-
-    .button_base.information_button {
-        width: 100%;
-        height: 100%;
-        display: block;
-        border-radius: 0px;
-        border-bottom-width: 5px;
-        background-color: #39393b;
-    }
-
-    .secondary_ticker_divider {
-        outline: 1px solid black;
-    }
-
-    .button_base.secondary_ticker_info {
-      float: left;
-      background-color: #39393b;
-      height: 100%;
-      max-height: 100%;
-      padding-left: 4px;
-      padding-right: 4px;
-      width: 12%;
-      max-width: 12%;
-      border-radius: 0px;
-    }
-
-    .information_interface {
-      display: none;
-    }
-
-    .upgrade_interface {
-      display: none;
-    }
-
-    .upgrade_wrapper {
-        height: 400px;
-        width: 30%;
-        float: right;
-        background-color: #353536;
-        border-radius: 0px 0px 4px 4px;
-    }
-
-    .upgrade_body {
-        padding: 8px
-    }
-
-    .upgrade_tab {
-        height: 400px;
-        float: left;
-        width: 70%; 
-    }
-    
-    .upgrade_tab:after {
-        content: "";
-        display: table;
-        clear: both;
-    }
-    
-    .upgrade_section {
-        height: 20%;
-        text-align: center;
-        width: 50%;
-        background-color: #39393b;
-        border-bottom-width: 5px
-    }
-
-    .upgrade_section:disabled {
-      background-color: #525257;
-      border-bottom-color: #6c6c91;
-      border-bottom-width: 0px;
-      background-image: repeating-linear-gradient(
-        -45deg,
-        transparent 0 20px,
-      #1f1f1f 20px 40px
-      );
-      color: #a4a4ab;
-      cursor: default
-    }
-
-    .upgrade_section:enabled {
-      -webkit-transition: .4s;
-      transition: .4s;
-    }
-
-    .main_ticker_info {
-      height: 10%;
-      background-color: #39393b;
-    }
-
-    .main_ticker_info_section {
-      float: left;
-      width: 25%;
-      height: 100%;
-      text-align: center;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: #d9d9db;
-    }
-
-    .main_ticker_buy_sell {
-      height: 10%;
-    }
-
-    .button_base.main_ticker_button {
-      background-color: #313136;
-      border-bottom-color: #2d5c2c;
-      border-bottom-width: 5px;
-      float: left;
-      width: 50%;
-      height: 100%;
-      z-index: 1;
-    }
-
-    .button_base.main_ticker_button:disabled {
-      background-color: #525257;
-      border-bottom-color: #6c6c91;
-      border-bottom-width: 0px;
-      background-image: repeating-linear-gradient(
-        -45deg,
-        transparent 0 20px,
-      #1f1f1f 20px 40px
-      );
-      color: #a4a4ab;
-      cursor: default
-    }
-
-    .button_base.main_ticker_button:enabled {
-      -webkit-transition: .4s;
-      transition: .4s;
-    }
-
-    .button_base.main_ticker_button:hover {
-      border-bottom-color: #34a333 !important;
-    }
-
-    .button_base.main_ticker_button.sell {
-      border-bottom-color: #663836;
-    }
-
-    .button_base.main_ticker_button.sell:disabled {
-      background-color: #525257;
-      border-bottom-color: #6c6c91;
-      border-bottom-width: 0px;
-      background-image: repeating-linear-gradient(
-        -45deg,
-        transparent 0 20px,
-      #1f1f1f 20px 40px
-      );
-      color: #a4a4ab;
-      cursor: default
-    }
-
-    .button_base.main_ticker_button.sell:enabled {
-      -webkit-transition: .4s;
-      transition: .4s;
-    }
-    
-    .button_base.main_ticker_button.sell:hover {
-      border-bottom-color: #b32720 !important;
-    }
-
-    .main_ticker_button_div {
-      float: left;
-      width: 50%;
-      height: 100%;
-      display: none;
-    }
-
-    .main_ticker_button_div.animate_disappear {
-      animation-name: main_ticker_button_div_animate_disappear;
-      animation-duration: 3s;
-      animation-fill-mode: forwards;
-    }
-
-    .main_ticker_button_div.animate_appear {
-      animation-name: main_ticker_button_div_animate_appear;
-      animation-duration: 3s;
-      animation-fill-mode: forwards;
-    }
-
-    @keyframes main_ticker_button_div_animate_disappear {
-      0% {width: 50%}
-      100% {width: 0%}
-    }
-
-    @keyframes main_ticker_button_div_animate_appear {
-      0% {width: 0%}
-      100% {width: 50%}
-    }
-
-    .darken_overlay {
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      top: 0;
-      background-color: rgba(0,0,0,0.6);
-      display: none;
-      z-index: 2;
-    }
-    
-    .buy_sell_confirmation {
-      position: fixed;
-      left: 35%;
-      right: 35%;
-      bottom: 45%;
-      top: 35%;
-      background-color: #353536;
-      border: solid 2px #232324;
-      z-index: 3;
-      display: none;
-    }
-
-    .buy_sell_confirmation_container {
-      height: 88%
-    }
-
-    .slider {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 100%;
-      height: 10px;
-      background: #4a4a4d;
-      outline: none;
-      opacity: 0.7;
-      -webkit-transition: .2s;
-      transition: opacity .2s;
-      margin-top: 10px;
-    }
-
-    .purchase_slider {
-      width: 40%;
-    }
-
-    .slider:hover {
-      opacity: 1;
-    }
-
-    .slider::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 25px;
-      height: 25px;
-      border-radius: 50%;
-      background: #5a5a94;
-      cursor: pointer;
-    }
-
-    .slider::-moz-range-thumb {
-      width: 25px;
-      height: 25px;
-      border-radius: 50%;
-      background: #5a5a94;
-      cursor: pointer;
-    }
-
-    .purchase_input {
-      background-color: #242429;
-    }
-
-    .button_base.buy_sell_confirmation_button {
-      float: left;
-      width: 50%;
-      height: 30%;
-      background-color: #242429;
-      border-bottom-color: #663836;
-      -webkit-transition: .4s;
-      transition: .4s;
-    }
-
-    .button_base.buy_sell_confirmation_button:hover {
-      border-bottom-color: #b32720 !important;
-      -webkit-transition: .4s;
-      transition: .4s;
-    }
-
-    .button_base.buy_sell_confirmation_button.confirm {
-      border-bottom-color: #2d5c2c;
-      -webkit-transition: .4s;
-      transition: .4s;
-    }
-
-    .button_base.buy_sell_confirmation_button.confirm:hover {
-      border-bottom-color: #34a333 !important;
-      -webkit-transition: .4s;
-      transition: .4s;
-    }
-
-    .center_object {
-      display: flex; 
-      justify-content: center; 
-      align-items: center;
-    }
-
-    .day_end_report {
-      position: fixed;
-      left: 35%;
-      right: 35%;
-      bottom: 45%;
-      top: 35%;
-      background-color: #353536;
-      border: solid 2px #232324;
-      z-index: 4;
-      display: none;
-    }
-
-    .day_end_container {
-      height: 88%
-    }
-
-    .button_base.day_end_button {
-      background-color: #242429;
-      float: left;
-      width: 100%;
-      height: 30%;
-      border-bottom-color: #2d5c2c;
-      -webkit-transition: .4s;
-      transition: .4s;
-      margin-bottom: 10%;
-    }
-
-    .button_base.day_end_button:hover {
-      border-bottom-color: #34a333 !important;
-      -webkit-transition: .4s;
-      transition: .4s;
-    }
-
-    .button_base.save_load_button {
-      width: 95%;
-      height: 30%;
-      margin-top: 2%;
-      margin-bottom: 3%;
-      background-color: #242429;
-      border-bottom-color: #2d5c2c;
-      -webkit-transition: .4s;
-      transition: .4s;
-    }
-
-    .button_base.save_load_button:hover {
-      border-bottom-color: #34a333 !important;
-      -webkit-transition: .4s;
-      transition: .4s;
-    }
-
-    .button_base.save_load_button.red {
-      border-bottom-color: #663836;
-    }
-
-    .button_base.save_load_button.red:hover {
-      border-bottom-color: #b32720 !important;
-      -webkit-transition: .4s;
-      transition: .4s;
-    }
-
-    .button_base.save_load_button.default {
-      border-bottom-color: #666694;
-    }
-
-    .button_base.save_load_button.default:hover {
-      border-bottom-color: #4646a6 !important;
-      -webkit-transition: .4s;
-      transition: .4s;
-    }
-
-    .save_load_menu {
-      position: fixed;
-      left: 40%;
-      right: 40%;
-      bottom: 50%;
-      top: 30%;
-      background-color: #353536;
-      border: solid 2px #232324;
-      z-index: 4;
-      display: none;
-    }
-
-    .button_base.start_day_button {
-      background-color: #313136;
-      width: 100%;
-      height: 100%;
-      border-bottom-width: 5px;
-      float: right;
-    }
-
-    .button_base.start_day_button:disabled {
-      background-color: #525257;
-      border-bottom-color: #6c6c91;
-      border-bottom-width: 0px;
-      background-image: repeating-linear-gradient(
-        -45deg,
-        transparent 0 20px,
-      #1f1f1f 20px 40px
-      );
-      color: #a4a4ab
-    }
-
-    .button_base.start_day_button:enabled {
-      -webkit-transition: .4s;
-      transition: .4s;
-    }
-
-    .button_base.start_day_button.animate_disappear {
-      animation-name: start_day_button_animate_disappear;
-      animation-duration: 3s;
-      animation-fill-mode: forwards;
-    }
-
-    .button_base.start_day_button.animate_appear {
-      animation-name: start_day_button_animate_appear;
-      animation-duration: 3s;
-      animation-fill-mode: forwards;
-    }
-
-    @keyframes start_day_button_animate_disappear {
-      0% {width: 100%}
-      100% {width: 0%}
-    }
-
-    @keyframes start_day_button_animate_appear {
-      0% {width: 0%}
-      100% {width: 100%}
-    }
-
-    .has_hovertext {
-      border-bottom: 1px dotted black;
-    }
-
-    .predictor_text {
-      padding-bottom: 4px;
-      padding-left: 16px;
-    }
-
-  </style>
+  <!-- The large amount of css files comes from a preference of readability > load time, though in this case the load time difference is not much and it's a sacrifice i'm willing to make -->
+  <link rel="stylesheet" type="text/css" href="css/buttons.css" />
+  <link rel="stylesheet" type="text/css" href="css/information.css" />
+  <link rel="stylesheet" type="text/css" href="css/main.css" />
+  <link rel="stylesheet" type="text/css" href="css/popup_menus.css" />
+  <link rel="stylesheet" type="text/css" href="css/trading.css" />
+  <link rel="stylesheet" type="text/css" href="css/upgrade.css" />
+  <script>
+    build_companies();
+  </script>
+  <style></style>
 </head>
 <body>
-  <div class="darken_overlay" id="dimmer"></div>  
+  <div class="darken_overlay" id="dimmer"></div>
   <div class="buy_sell_confirmation text_color" id="buy_sell_confirmation">
     <div class="buy_sell_confirmation_container">
-      <div class="center_object" style="margin-bottom: 5%;" id="buy_sell_confirmation_question">
+      <div
+        class="center_object"
+        style="margin-bottom: 5%"
+        id="buy_sell_confirmation_question"
+      >
         How many shares of TICKER would you like to purchase?
       </div>
-      <div class="center_object" style="margin-bottom: 2%;">
-        <input type="number" min="0" max="100" value="50" class="purchase_input text_color" id="buy_sell_input" oninput="on_confirmation_input_change()">
+      <div class="center_object" style="margin-bottom: 2%">
+        <input
+          type="number"
+          min="0"
+          max="100"
+          value="50"
+          class="purchase_input text_color"
+          id="buy_sell_input"
+          oninput="on_confirmation_input_change()"
+        />
       </div>
       <div class="center_object">
-        <input type="range" min="0" max="100" value="50" class="slider purchase_slider" id="buy_sell_slider", oninput="on_confirmation_slider_change()">
+        <input
+          type="range"
+          min="0"
+          max="100"
+          value="50"
+          class="slider purchase_slider"
+          id="buy_sell_slider"
+          ,
+          oninput="on_confirmation_slider_change()"
+        />
       </div>
     </div>
     <div>
-      <button class="button_base buy_sell_confirmation_button" id="buy_sell_cancel_button" onclick="on_confirmation_cancel()">
+      <button
+        class="button_base buy_sell_confirmation_button"
+        id="buy_sell_cancel_button"
+        onclick="on_confirmation_cancel()"
+      >
         Cancel
       </button>
-      <button class="button_base buy_sell_confirmation_button confirm" id="buy_sell_confirm_button" onclick="on_confirmation_buy_sell()">
+      <button
+        class="button_base buy_sell_confirmation_button confirm"
+        id="buy_sell_confirm_button"
+        onclick="on_confirmation_buy_sell()"
+      >
         Confirm ($xxxx)
       </button>
     </div>
   </div>
   <div class="day_end_report text_color" id="day_end_report">
     <div class="buy_sell_confirmation_container">
-      <div class="center_object" style="margin-bottom: 5%;">
+      <div class="center_object" style="margin-bottom: 5%">
         End of Day Report
       </div>
       <div class="day_end_report_funds text_color" id="day_end_report_funds">
@@ -723,7 +80,10 @@
       </div>
     </div>
     <div>
-      <button class="button_base day_end_button" onclick="day_end_report_continue()">
+      <button
+        class="button_base day_end_button"
+        onclick="day_end_report_continue()"
+      >
         Continue to Next Day
       </button>
     </div>
@@ -733,38 +93,74 @@
       <b>Save Menu</b>
     </div>
     <div class="center_object">
-      <button class="button_base save_load_button" onclick="save_button_press()">
+      <button
+        class="button_base save_load_button"
+        onclick="save_button_press()"
+      >
         Save
       </button>
     </div>
     <div class="center_object">
-      <button class="button_base save_load_button" onclick="load_button_press()">
+      <button
+        class="button_base save_load_button"
+        onclick="load_button_press()"
+      >
         Load
       </button>
     </div>
     <div class="center_object">
-      <button class="button_base save_load_button red" onclick="new_save_press()">
+      <button
+        class="button_base save_load_button red"
+        onclick="new_save_press()"
+      >
         New Game
       </button>
     </div>
     <div class="center_object">
-      <button class="button_base save_load_button default" onclick="set_save_load_menu(false)">
+      <button
+        class="button_base save_load_button default"
+        onclick="set_save_load_menu(false)"
+      >
         Close
       </button>
     </div>
   </div>
   <div class="head_row">
     <div class="top_column">
-      <button class="button_base" id="headrow_info_button" onclick="headrow_info()">Information</button>
+      <button
+        class="button_base"
+        id="headrow_info_button"
+        onclick="headrow_info()"
+      >
+        Information
+      </button>
     </div>
     <div class="top_column">
-      <button class="button_base" id="headrow_trade_button" onclick="headrow_trade()">Trading</button>
+      <button
+        class="button_base"
+        id="headrow_trade_button"
+        onclick="headrow_trade()"
+      >
+        Trading
+      </button>
     </div>
     <div class="top_column">
-      <button class="button_base" id="headrow_upgrade_button" onclick="headrow_upgrades()">Upgrades</button>
+      <button
+        class="button_base"
+        id="headrow_upgrade_button"
+        onclick="headrow_upgrades()"
+      >
+        Upgrades
+      </button>
     </div>
     <div class="top_column">
-      <button class="button_base" id="save_load_button" onclick="set_save_load_menu(true)">Save/Load</button>
+      <button
+        class="button_base"
+        id="save_load_button"
+        onclick="set_save_load_menu(true)"
+      >
+        Save/Load
+      </button>
     </div>
   </div>
 
@@ -772,27 +168,47 @@
   <div class="information_interface" id="information_interface">
     <div class="information_tab">
       <div class="information_section">
-        <button class="button_base information_button" id="info_button_1" onclick="info_button_1_press()">
+        <button
+          class="button_base information_button"
+          id="info_button_1"
+          onclick="info_button_1_press()"
+        >
           1: Basics
         </button>
       </div>
       <div class="information_section">
-        <button class="button_base information_button" id="info_button_2" onclick="info_button_2_press()">
+        <button
+          class="button_base information_button"
+          id="info_button_2"
+          onclick="info_button_2_press()"
+        >
           2: Empty
         </button>
       </div>
       <div class="information_section">
-        <button class="button_base information_button" id="info_button_3" onclick="info_button_3_press()">
+        <button
+          class="button_base information_button"
+          id="info_button_3"
+          onclick="info_button_3_press()"
+        >
           3: Game
         </button>
       </div>
       <div class="information_section">
-        <button class="button_base information_button" id="info_button_4" onclick="info_button_4_press()">
+        <button
+          class="button_base information_button"
+          id="info_button_4"
+          onclick="info_button_4_press()"
+        >
           4: Empty
         </button>
       </div>
       <div class="information_section">
-        <button class="button_base information_button" id="info_button_5" onclick="info_button_5_press()">
+        <button
+          class="button_base information_button"
+          id="info_button_5"
+          onclick="info_button_5_press()"
+        >
           5: Empty
         </button>
       </div>
@@ -806,16 +222,32 @@
   <div class="stock_interface" id="trade_interface">
     <div class="main_ticker">
       <div class="main_ticker_info">
-        <div class="main_ticker_info_section" id="main_ticker_info_name" title="Company Name">
+        <div
+          class="main_ticker_info_section"
+          id="main_ticker_info_name"
+          title="Company Name"
+        >
           Fizzbuzz Inc. (FZBZ)
         </div>
-        <div class="main_ticker_info_section" id="main_ticker_info_minmax" title="Daily Minimum / Daily Maximum">
+        <div
+          class="main_ticker_info_section"
+          id="main_ticker_info_minmax"
+          title="Daily Minimum / Daily Maximum"
+        >
           Minimum / Maximum
         </div>
-        <div class="main_ticker_info_section" id="main_ticker_info_shares" title="Shares of Company Currently Owned">
+        <div
+          class="main_ticker_info_section"
+          id="main_ticker_info_shares"
+          title="Shares of Company Currently Owned"
+        >
           Shares Owned
         </div>
-        <div class="main_ticker_info_section" id="main_ticker_info_value" title="Value of One Share">
+        <div
+          class="main_ticker_info_section"
+          id="main_ticker_info_value"
+          title="Value of One Share"
+        >
           Share Value
         </div>
       </div>
@@ -825,21 +257,45 @@
       </script>
       <div class="main_ticker_buy_sell">
         <div class="main_ticker_button_div" id="main_ticker_buy_buttons">
-          <button class="button_base main_ticker_button" id="main_ticker_button_buy1" onclick="buy_button_1_press()">
+          <button
+            class="button_base main_ticker_button"
+            id="main_ticker_button_buy1"
+            onclick="buy_button_1_press()"
+          >
             Buy 1
           </button>
-          <button class="button_base main_ticker_button" id="main_ticker_button_buyamount" onclick="buy_button_amount_press()">
+          <button
+            class="button_base main_ticker_button"
+            id="main_ticker_button_buyamount"
+            onclick="buy_button_amount_press()"
+          >
             Buy Amount
           </button>
         </div>
-        <button class="button_base start_day_button" id="start_day_button" onclick="start_day_button_press()">
+        <button
+          class="button_base start_day_button"
+          id="start_day_button"
+          onclick="start_day_button_press()"
+        >
           Start Trading Day
-        </button> 
-        <div class="main_ticker_button_div" id="main_ticker_sell_buttons" style="float: left">
-          <button class="button_base main_ticker_button sell" id="main_ticker_button_sell1" onclick="sell_button_1_press()">
+        </button>
+        <div
+          class="main_ticker_button_div"
+          id="main_ticker_sell_buttons"
+          style="float: left"
+        >
+          <button
+            class="button_base main_ticker_button sell"
+            id="main_ticker_button_sell1"
+            onclick="sell_button_1_press()"
+          >
             Sell 1
           </button>
-          <button class="button_base main_ticker_button sell" id="main_ticker_button_sellamount" onclick="sell_button_amount_press()">
+          <button
+            class="button_base main_ticker_button sell"
+            id="main_ticker_button_sellamount"
+            onclick="sell_button_amount_press()"
+          >
             Sell Amount
           </button>
         </div>
@@ -847,7 +303,10 @@
     </div>
     <div class="secondary_tickers">
       <div class="secondary_ticker">
-        <button class="button_base secondary_ticker_info" onclick="secondary_ticker_click('base2')">
+        <button
+          class="button_base secondary_ticker_info"
+          onclick="secondary_ticker_click('base2')"
+        >
           <div class="secondary_ticker_info_name" id="st_info_name_base2">
             Foobar Ltd.
           </div>
@@ -855,14 +314,20 @@
             FBR
           </div>
         </button>
-        <canvas id="base2" style="width: 100%; max-width: 86.5%; height: 100%"></canvas>
+        <canvas
+          id="base2"
+          style="width: 100%; max-width: 86.5%; height: 100%"
+        ></canvas>
         <script>
           init_chart("base2", "FBR");
         </script>
       </div>
-      
+
       <div class="secondary_ticker">
-        <button class="button_base secondary_ticker_info" onclick="secondary_ticker_click('base3')">
+        <button
+          class="button_base secondary_ticker_info"
+          onclick="secondary_ticker_click('base3')"
+        >
           <div class="secondary_ticker_info_name" id="st_info_name_base3">
             Foobar Ltd.
           </div>
@@ -870,14 +335,20 @@
             FBR
           </div>
         </button>
-        <canvas id="base3" style="width: 100%; max-width: 86.5%; height: 100%"></canvas>
+        <canvas
+          id="base3"
+          style="width: 100%; max-width: 86.5%; height: 100%"
+        ></canvas>
         <script>
           init_chart("base3", "WY");
         </script>
       </div>
-      
+
       <div class="secondary_ticker">
-        <button class="button_base secondary_ticker_info" onclick="secondary_ticker_click('base4')">
+        <button
+          class="button_base secondary_ticker_info"
+          onclick="secondary_ticker_click('base4')"
+        >
           <div class="secondary_ticker_info_name" id="st_info_name_base4">
             Foobar Ltd.
           </div>
@@ -885,14 +356,20 @@
             FBR
           </div>
         </button>
-        <canvas id="base4" style="width: 100%; max-width: 86.5%; height: 100%"></canvas>
+        <canvas
+          id="base4"
+          style="width: 100%; max-width: 86.5%; height: 100%"
+        ></canvas>
         <script>
           init_chart("base4", "MCSF");
         </script>
       </div>
-      
+
       <div class="secondary_ticker">
-        <button class="button_base secondary_ticker_info" onclick="secondary_ticker_click('base5')">
+        <button
+          class="button_base secondary_ticker_info"
+          onclick="secondary_ticker_click('base5')"
+        >
           <div class="secondary_ticker_info_name" id="st_info_name_base5">
             Foobar Ltd.
           </div>
@@ -900,14 +377,20 @@
             FBR
           </div>
         </button>
-        <canvas id="base5" style="width: 100%; max-width: 86.5%; height: 100%"></canvas>
+        <canvas
+          id="base5"
+          style="width: 100%; max-width: 86.5%; height: 100%"
+        ></canvas>
         <script>
           init_chart("base5", "BB");
         </script>
       </div>
-      
+
       <div class="secondary_ticker">
-        <button class="button_base secondary_ticker_info" onclick="secondary_ticker_click('base6')">
+        <button
+          class="button_base secondary_ticker_info"
+          onclick="secondary_ticker_click('base6')"
+        >
           <div class="secondary_ticker_info_name" id="st_info_name_base6">
             Foobar Ltd.
           </div>
@@ -915,22 +398,28 @@
             FBR
           </div>
         </button>
-        <canvas id="base6" style="width: 100%; max-width: 86.5%; height: 100%"></canvas>
+        <canvas
+          id="base6"
+          style="width: 100%; max-width: 86.5%; height: 100%"
+        ></canvas>
         <script>
           init_chart("base6", "FSW");
-        </script> 
+        </script>
       </div>
     </div>
   </div>
 
   <!-- The div for the upgrade tab -->
   <div class="upgrade_interface" id="upgrade_interface">
-    <div class="upgrade_tab" id="upgrade_tab">
-    </div>
+    <div class="upgrade_tab" id="upgrade_tab"></div>
     <div class="upgrade_wrapper">
       <div class="upgrade_body text_color" id="upgrade_body"></div>
       <div class="center_object">
-        <button class="button_base upgrade_purchase_button" id="upgrade_purchase_button" onclick="upgrade_purchase_button_press()">
+        <button
+          class="button_base upgrade_purchase_button"
+          id="upgrade_purchase_button"
+          onclick="upgrade_purchase_button_press()"
+        >
           Purchase ($0000)
         </button>
       </div>
@@ -951,13 +440,4 @@
       </div>
     </div>
   </div>
-  <script>
-    list_companies();
-    update_company_prices();
-    update_main_ticker_info();
-    update_cash();
-    update_all_company_entry_buttons();
-    set_button_select_color("headrow_trade_button", true);
-    create_upgrade_dict();
-  </script>
 </body>
