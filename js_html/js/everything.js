@@ -151,6 +151,11 @@ class Company {
 
     owned_stocks[this.ticker] = 0;
   }
+  on_day_start() {
+    this.minimum_daily_value = 0;
+    this.maximum_daily_value = 0;
+  }
+
   on_day_tick() {
     let new_price = sin_equation(this);
     if (new_price > this.maximum_daily_value) {
@@ -949,6 +954,9 @@ function start_trading_day() {
   start_interval();
   set_company_trajectory();
   set_predictor_values();
+  company_list.forEach((company) => {
+    company.on_day_start();
+  });
 }
 
 function set_company_trajectory() {
