@@ -1,4 +1,8 @@
 // Save button code
+/**
+ * Called whenever someone presses the save button, inserting the savegame into the client's cookies
+ * @returns void
+ */
 function save_button_press() {
   if (day_in_progress) {
     return;
@@ -24,6 +28,10 @@ function save_button_press() {
   document.cookie = `player_shares=${JSON.stringify(owned_stocks)}`;
 }
 
+/**
+ * Called whenever someone presses the load button, attempting to load save data from the client's cookies
+ * @returns void
+ */
 function load_button_press() {
   if (day_in_progress) {
     return;
@@ -79,10 +87,18 @@ function load_button_press() {
   });
 }
 
+/**
+ * Function to splitstring the chart data found in cookies
+ * @param {string} chart_data
+ * @returns array
+ */
 function parse_cookie_chartdata(chart_data = "") {
   return chart_data.split(",");
 }
 
+/**
+ * Resets the game to the starting day and information
+ */
 function new_save_press() {
   current_day = 18;
   current_month = "October";
@@ -93,8 +109,14 @@ function new_save_press() {
     owned_stocks[company.ticker] = 0;
   });
   set_save_load_menu(false);
+  // add smth for upgrades here
 }
 
+/**
+ * Opens or closes the save/load menu dependent on the argument passed in
+ * @param {boolean} open
+ * @returns void
+ */
 function set_save_load_menu(open = true) {
   if (day_in_progress) {
     return;

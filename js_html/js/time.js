@@ -1,3 +1,7 @@
+/**
+ * Makes the current time look good, returns the format of "8:00 AM, August 21, 2023"
+ * @returns string
+ */
 function pretty_time() {
   let am_pm = "AM";
   let hour_time = current_time / 60;
@@ -29,7 +33,6 @@ function pretty_time() {
   return `${split_hour_time[0]}:${minutes} ${am_pm}, ${current_month} ${current_day}, ${current_year}`;
 }
 
-// Time stuff
 /**
  * Dict of "month" : days in month. Leap years do not exist.
  */
@@ -48,6 +51,10 @@ var month_to_days = {
   December: 31,
 };
 
+/**
+ * Advances the current day by one. If this would move to the next month, call `advance_month()`
+ * @returns void
+ */
 function advance_day() {
   current_day++;
   if (current_day > month_to_days[current_month]) {
@@ -57,6 +64,10 @@ function advance_day() {
   update_date_time();
 }
 
+/**
+ * Advances the current month by one. If this would move to the next year, call `advance_year()`
+ * @returns void
+ */
 function advance_month() {
   let months = Object.keys(month_to_days);
   let month_number = months.indexOf(current_month) + 1;
@@ -69,6 +80,9 @@ function advance_month() {
   update_date_time();
 }
 
+/**
+ * Advances the current year by 1, resetting month/day to Jan 1st
+ */
 function advance_year() {
   current_day = 1;
   current_month = "January";
@@ -76,11 +90,17 @@ function advance_year() {
   update_date_time();
 }
 
+/**
+ * Advances the game time by `advance_amount`
+ */
 function advance_time() {
   current_time += advance_amount;
   update_date_time();
 }
 
+/**
+ * Updates the bottom row's date & time
+ */
 function update_date_time() {
   let element = document.getElementById("date_time");
   element.textContent = pretty_time();

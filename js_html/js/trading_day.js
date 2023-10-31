@@ -62,6 +62,9 @@ var current_year = 2023;
  */
 var time_per_tick = seconds_to_ms(2);
 
+/**
+ * Start the trading day, calling and setting what's necessary
+ */
 function start_trading_day() {
   current_time = start_time;
   starting_cash = cash;
@@ -74,12 +77,19 @@ function start_trading_day() {
   });
 }
 
+/**
+ * Call `set_daily_trajectory()` on every company
+ */
 function set_company_trajectory() {
   company_list.forEach((company) => {
     company.set_daily_trajectory();
   });
 }
 
+/**
+ * Should the player have the predictor upgrades, attempt to predict the movement of all stock companies.
+ * @returns void
+ */
 function set_predictor_values() {
   if (!predictor_enabled) {
     return;
@@ -128,6 +138,9 @@ function set_predictor_values() {
   });
 }
 
+/**
+ * End the trading day
+ */
 function end_trading_day() {
   day_in_progress = false;
   clearInterval(day_interval);
@@ -135,12 +148,18 @@ function end_trading_day() {
   update_headrow_buttons();
 }
 
+/**
+ * The thing that calls the game tick every `time_per_tick`
+ */
 function start_interval() {
   day_interval = setInterval(function () {
     on_day_tick();
   }, time_per_tick);
 }
 
+/**
+ * Called every `time_per_tick`, effectively the game's update cycle
+ */
 function on_day_tick() {
   advance_time();
   update_company_prices();
@@ -148,4 +167,5 @@ function on_day_tick() {
   if (current_time >= end_time) {
     end_trading_day();
   }
+  tick_upgrades();
 }

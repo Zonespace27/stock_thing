@@ -3,18 +3,59 @@
  */
 var upgrade_dict = {};
 
+/**
+ * List of all purchased upgrades
+ */
 var purchased_upgrades = [];
 
+/**
+ * The currently focused upgrade id in the upgrades tab
+ */
 var focused_upgrade = "";
 
+/**
+ * The base upgrade class for all upgrades. Upgrades are buyable upgrades that provide benefits to the player when purchased or on every game tick
+ */
 class Upgrade {
   constructor() {
+    /**
+     * The common name of the upgrade
+     */
     this.name = "";
+
+    /**
+     * The internal, unique ID of the upgrade
+     */
     this.id = "";
+
+    /**
+     * A description that tells the user what the upgrade does
+     */
     this.description = "";
+
+    /**
+     * If this upgrade has been purchased already
+     */
     this.purchased = false;
+
+    /**
+     * How much cash this upgrade costs to purchase
+     */
     this.cost = 0;
+
+    /**
+     * If this upgrade should show up in the upgrade menu yet
+     */
     this.hidden = false;
+
+    /**
+     * If this upgrade was initially hidden. Used for starting a new game
+     */
+    this.initial_hidden = this.hidden;
+
+    /**
+     * A list of upgrade IDs that this upgrade unlocks on purchase.
+     */
     this.upgrade_unlocks = [];
   }
   /**
@@ -68,6 +109,7 @@ class MovementPredictor extends Upgrade {
     this.prediction_accuracy_chance = accuracy_chance;
     this.cost = cost;
     this.hidden = hidden;
+    this.initial_hidden = this.hidden;
     this.upgrade_unlocks = unlock_ids;
   }
   on_purchase() {
@@ -76,6 +118,9 @@ class MovementPredictor extends Upgrade {
   }
 }
 
+/**
+ * Creates the `upgrade_dict` dictionary with all the upgrades
+ */
 function create_upgrade_dict() {
   upgrade_dict["predictor_1"] = new MovementPredictor(
     "Basic Prediction Algorithms",
@@ -120,12 +165,19 @@ function create_upgrade_dict() {
   load_upgrade_html();
 }
 
+/**
+ * Creates the html elements for every upgrade in the upgrade tab
+ */
 function load_upgrade_html() {
   Object.values(upgrade_dict).forEach((upgrade) => {
     create_upgrade_entry(upgrade);
   });
 }
 
+/**
+ * Creates an upgrade entry for the upgrade menu
+ * @param {Upgrade} upgrade
+ */
 function create_upgrade_entry(upgrade) {
   let new_button = document.createElement("button");
   if (upgrade.hidden) {
@@ -143,6 +195,11 @@ function create_upgrade_entry(upgrade) {
   parent_element.appendChild(new_button);
 }
 
+/**
+ * What happens when someone clicks on an upgrade entry
+ * @param {string} upgrade_id
+ * @returns void
+ */
 function upgrade_entry_click(upgrade_id) {
   if (!upgrade_dict[upgrade_id]) {
     return;
@@ -155,6 +212,9 @@ function upgrade_entry_click(upgrade_id) {
   element.textContent = `Purchase ($${upgrade_dict[upgrade_id].cost})`;
 }
 
+/**
+ * Clears the info of the current upgrade in the upgrade tab
+ */
 function wipe_upgrade_info() {
   focused_upgrade = "";
   let element = document.getElementById("upgrade_body");
@@ -164,6 +224,10 @@ function wipe_upgrade_info() {
   element.textContent = `Purchase ($0000)`;
 }
 
+/**
+ * Attempts to purchase the upgrade is possible
+ * @returns boolean
+ */
 function upgrade_purchase_button_press() {
   let upgrade = upgrade_dict[focused_upgrade];
   if (cash < upgrade.cost) {
@@ -175,4 +239,14 @@ function upgrade_purchase_button_press() {
   adjust_cash(-upgrade.cost);
   purchased_upgrades.push(upgrade);
   upgrade.on_purchase();
+  return true;
+}
+
+/**
+ * Calls the day tick of all upgrades
+ */
+function tick_upgrades() {
+  purchased_upgrades.forEach((upgrade) => {
+    upgrade.on_day_tick();
+  });
 }

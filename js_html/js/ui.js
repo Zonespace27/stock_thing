@@ -2,18 +2,20 @@
  * UI button interactions
  */
 
-/**
- * String ID of the currently focused page
- */
-
 const PAGE_INFO = "information_interface";
 const PAGE_TRADE = "trade_interface";
 const PAGE_UPGRADE = "upgrade_interface";
 
+/**
+ * String ID of the currently focused page
+ */
 var current_page = PAGE_TRADE;
 
 // Header buttons
 
+/**
+ * Change the main page to the trading interface
+ */
 function headrow_trade() {
   let element = document.getElementById(PAGE_TRADE);
   element.style.display = "block";
@@ -27,6 +29,9 @@ function headrow_trade() {
   set_button_select_color("headrow_upgrade_button", false);
 }
 
+/**
+ * Change the main page to the information interface
+ */
 function headrow_info() {
   let element = document.getElementById(PAGE_TRADE);
   element.style.display = "none";
@@ -40,6 +45,9 @@ function headrow_info() {
   set_button_select_color("headrow_upgrade_button", false);
 }
 
+/**
+ * Change the main page to the upgrade interface
+ */
 function headrow_upgrades() {
   let element = document.getElementById(PAGE_TRADE);
   element.style.display = "none";
@@ -53,6 +61,12 @@ function headrow_upgrades() {
   set_button_select_color("headrow_upgrade_button", true);
 }
 
+/**
+ * Will set the selected status/visuals of a button dependent on the `selected` argument
+ * @param {string} button_id
+ * @param {boolean} selected
+ * @returns void
+ */
 function set_button_select_color(button_id = "", selected = true) {
   if (!button_id) {
     return;
@@ -68,6 +82,9 @@ function set_button_select_color(button_id = "", selected = true) {
     : "none";
 }
 
+/**
+ * Updates the header's buttons dependent on if the day is in progress or not.
+ */
 function update_headrow_buttons() {
   if (day_in_progress) {
     let element = document.getElementById("save_load_button");
@@ -97,6 +114,9 @@ const CONFIRM_SELL = "sell";
  */
 var buy_or_sell_confirmation_menu = CONFIRM_BUY;
 
+/**
+ * Show the screen dimmer, preventing the user from interacting with the main screen
+ */
 function dim_screen() {
   let element = document.getElementById("dimmer");
   element.style.display = "block";
@@ -105,6 +125,9 @@ function dim_screen() {
   }
 }
 
+/**
+ * Hide the screen dimmer, allowing the user to interact with the screen as normal
+ */
 function undim_screen() {
   let element = document.getElementById("dimmer");
   element.style.display = "none";
@@ -113,6 +136,10 @@ function undim_screen() {
   }
 }
 
+/**
+ * Shows or hides the day end report dependent on the boolean `on`
+ * @param {boolean} on
+ */
 function set_day_end_report(on = true) {
   if (on) {
     dim_screen();
@@ -150,12 +177,19 @@ function set_day_end_report(on = true) {
   }
 }
 
+/**
+ * Triggered when the user presses continue on the day end report, moving to the next day
+ */
 function day_end_report_continue() {
   advance_day();
   trading_day_button_appear();
   set_day_end_report(false);
 }
 
+/**
+ * Shows or hides the buy confirmation dependent on the boolean `on`
+ * @param {boolean} on
+ */
 function set_buy_confirmation(on = true) {
   if (on) {
     calculate_buy_confirmation();
@@ -173,6 +207,10 @@ function set_buy_confirmation(on = true) {
   }
 }
 
+/**
+ * Shows or hides the buy confirmation dependent on the boolean `on`
+ * @param {boolean} on
+ */
 function set_sell_confirmation(on = true) {
   if (on) {
     calculate_sell_confirmation();
@@ -190,6 +228,9 @@ function set_sell_confirmation(on = true) {
   }
 }
 
+/**
+ * Calculate and set the information for the buy confirmation
+ */
 function calculate_buy_confirmation() {
   let maximum_buy_amount = Math.max(
     0,
@@ -203,6 +244,9 @@ function calculate_buy_confirmation() {
   element.textContent = `Confirm ($0)`;
 }
 
+/**
+ * Calculate and set the information for the sell confirmation
+ */
 function calculate_sell_confirmation() {
   let maximum_sell_amount = owned_stocks[primary_ticker_company.ticker];
   let element = document.getElementById("buy_sell_slider");
@@ -213,6 +257,10 @@ function calculate_sell_confirmation() {
   element.textContent = `Confirm ($0)`;
 }
 
+/**
+ * Sets how many shares the user is currently looking to buy or sell
+ * @param {number} amount
+ */
 function set_share_buy_sell_amount(amount) {
   share_buy_sell_amount = amount;
   let element = document.getElementById("buy_sell_slider");
@@ -221,6 +269,9 @@ function set_share_buy_sell_amount(amount) {
   element.value = share_buy_sell_amount;
 }
 
+/**
+ * Called whenever someone changes the input in the buy/sell confirmation menu
+ */
 function on_confirmation_input_change() {
   let input_element = document.getElementById("buy_sell_input");
   if (buy_or_sell_confirmation_menu === CONFIRM_BUY) {
@@ -246,6 +297,9 @@ function on_confirmation_input_change() {
   })`;
 }
 
+/**
+ * Called whenever someone changes the slider in the buy/sell confirmation menu
+ */
 function on_confirmation_slider_change() {
   let input_element = document.getElementById("buy_sell_input");
   let slider_element = document.getElementById("buy_sell_slider");
@@ -257,10 +311,16 @@ function on_confirmation_slider_change() {
   })`;
 }
 
+/**
+ * Called when the user presses cancel on the buy/sell confirmation menu
+ */
 function on_confirmation_cancel() {
   set_buy_confirmation(false);
 }
 
+/**
+ * Called when someone confirms that they wish to buy/sell in the confirmation menu
+ */
 function on_confirmation_buy_sell() {
   if (buy_or_sell_confirmation_menu === CONFIRM_BUY) {
     adjust_cash(
@@ -277,6 +337,11 @@ function on_confirmation_buy_sell() {
   }
 }
 
+/**
+ * Called when the user clicks on one of the secondary ticker buttons. Swaps it with the primary ticker company, if possible
+ * @param {string} chart_id
+ * @returns void
+ */
 function secondary_ticker_click(chart_id = "") {
   if (!chart_id) {
     return;
@@ -301,6 +366,10 @@ function secondary_ticker_click(chart_id = "") {
 
 // Buy/sell buttons
 
+/**
+ * Called when the user presses the button to buy one share of a company
+ * @returns void
+ */
 function buy_button_1_press() {
   if (!primary_ticker_company) {
     return;
@@ -309,6 +378,10 @@ function buy_button_1_press() {
   update_main_ticker_info();
 }
 
+/**
+ * Called when the user presses the button to buy multiple shares of a company
+ * @returns void
+ */
 function buy_button_amount_press() {
   if (!primary_ticker_company) {
     return;
@@ -316,6 +389,10 @@ function buy_button_amount_press() {
   set_buy_confirmation(true);
 }
 
+/**
+ * Called when the user presses the button to sell one share of a company
+ * @returns void
+ */
 function sell_button_1_press() {
   if (!primary_ticker_company) {
     return;
@@ -324,6 +401,10 @@ function sell_button_1_press() {
   update_main_ticker_info();
 }
 
+/**
+ * Called when the user presses the button to sell multiple shares of a company
+ * @returns void
+ */
 function sell_button_amount_press() {
   if (!primary_ticker_company) {
     return;
@@ -331,6 +412,9 @@ function sell_button_amount_press() {
   set_sell_confirmation(true);
 }
 
+/**
+ * Called when someone presses the start button for the trading day. Starts the day 2s after.
+ */
 function start_day_button_press() {
   trading_day_button_disappear();
   day_in_progress = true;

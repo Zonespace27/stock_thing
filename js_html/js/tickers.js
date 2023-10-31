@@ -1,3 +1,7 @@
+/**
+ * Updates the information and buttons relating to the main ticker
+ * @returns void
+ */
 function update_main_ticker_info() {
   if (!primary_ticker_company) {
     let element = document.getElementById("main_ticker_button_buy1");
@@ -47,6 +51,9 @@ function update_main_ticker_info() {
   }
 }
 
+/**
+ * Makes the buy/sell buttons disappear and makes the start trade day button appear
+ */
 function trading_day_button_appear() {
   disable_trading_buttons(true);
   let element = document.getElementById("main_ticker_buy_buttons");
@@ -70,6 +77,9 @@ function trading_day_button_appear() {
   }, 2100); // this number is hand-picked to cause minimum jank
 }
 
+/**
+ * Makes the start trade day button disappear and the buy/sell buttons appear
+ */
 function trading_day_button_disappear() {
   disable_trading_buttons(true);
   let element = document.getElementById("start_day_button");
@@ -94,6 +104,10 @@ function trading_day_button_disappear() {
   }, 2450); // this number is hand-picked to cause minimum jank
 }
 
+/**
+ * Enables/disables all the main ticker trading buttons dependent on `boolean_set`
+ * @param {boolean} boolean_set
+ */
 function disable_trading_buttons(boolean_set = true) {
   let element = document.getElementById("main_ticker_button_buy1");
   element.disabled = boolean_set;
@@ -109,6 +123,11 @@ function disable_trading_buttons(boolean_set = true) {
 
 // Secondary ticker junk
 
+/**
+ * Called whenever someone presses one of the buttons in the stock list, adds to primary/secondary ticker if possible
+ * @param {string} company_ticker
+ * @returns void
+ */
 function stock_list_add_remove_press(company_ticker) {
   if (!company_ticker) {
     return;
@@ -134,6 +153,11 @@ function stock_list_add_remove_press(company_ticker) {
   update_company_entry_button(company_ticker);
 }
 
+/**
+ * Adds a stock to the primary ticker slot
+ * @param {string} company_ticker
+ * @returns void
+ */
 function add_to_primary_ticker(company_ticker) {
   if (!company_ticker) {
     return;
@@ -142,6 +166,10 @@ function add_to_primary_ticker(company_ticker) {
   update_main_ticker_info();
 }
 
+/**
+ * Removes a stock from the primary ticker slot
+ * @returns void
+ */
 function remove_from_primary_ticker() {
   if (!primary_ticker_company) {
     return;
@@ -161,11 +189,17 @@ function remove_from_primary_ticker() {
   delete charts["primary"];
 }
 
+/**
+ * Adds a company to the first available secondary ticker, or to a specific one if an ID is provided
+ * @param {string} company_ticker
+ * @param {string} override_chart_id
+ * @returns void
+ */
 function add_to_secondary_ticker(company_ticker, override_chart_id = "") {
   if (!company_ticker) {
     return;
   }
-  // Alas, JS doesn't support overloading
+  // Alas, JS doesn't support function overloading
   if (override_chart_id) {
     if (
       Object.keys(secondary_ticker_companies).indexOf(override_chart_id) === -1
@@ -191,6 +225,11 @@ function add_to_secondary_ticker(company_ticker, override_chart_id = "") {
   });
 }
 
+/**
+ * Removes a company from the secondary ticker slot it occupies, if it does.
+ * @param {string} company_ticker
+ * @returns void
+ */
 function remove_from_secondary_ticker(company_ticker) {
   if (!company_ticker) {
     return;

@@ -1,8 +1,6 @@
-/*
- * Company stuff
+/**
+ *  List of all built company objects
  */
-
-/// List of all built company objects
 var company_list = [];
 
 /**
@@ -18,6 +16,9 @@ var secondary_ticker_companies = {};
 /// Dict of ticker : company object
 var ticker_to_company = {};
 
+/**
+ * A list of dictionaries containing all the data on every company that should exist on init
+ */
 const company_data = [
   {
     // Midrange stock that is about as generic as it gets
@@ -90,6 +91,9 @@ const company_data = [
   },
 ];
 
+/**
+ * Object that holds all the data for a tradeable company
+ */
 class Company {
   constructor(
     company_name = "Debugging Inc.",
@@ -99,21 +103,46 @@ class Company {
     period_divider = 1,
     sin_progression = 0.1
   ) {
+    /**
+     * The common name of the company
+     */
     this.company_name = company_name;
+    /**
+     * A 2-4 letter, all-caps code like "ABCD" to refer to the company. Also used as an ID, so keep it unique
+     */
     this.ticker = ticker;
+
     this.y_axis_offset = y_axis_offset; // in the formula y=m*sin(ox)+n, represents n
     this.sin_multiplier = sin_multiplier; // in the formula y=m*sin(ox)+n, represents m
     this.period_divider = period_divider; // in the formula y=m*sin(ox)+n, represents o
-    this.sin_progression = sin_progression; // How much to progress sin_value by
+    /**
+     * How much to progress sin_value by
+     */
+    this.sin_progression = sin_progression;
+    /**
+     * The price of the company's shares on the previous tick
+     */
     this.previous_price = 0;
+    /**
+     * The price of a share of the company right now
+     */
     this.current_price = 0;
 
     /**
      * The last [max_data_points] pieces of historical price data
      */
     this.chart_data = [];
+
+    /**
+     * Ref to the chart object this is linked to, if it is at all.
+     */
     this.linked_chart = null;
+
+    /**
+     * String ID of the chart the compnay is linked to, if any
+     */
     this.chart_id = "";
+
     /**
      * The lowest value this stock has been on a given trading day
      */
@@ -151,11 +180,18 @@ class Company {
 
     owned_stocks[this.ticker] = 0;
   }
+  /**
+   * Called whenever a new day starts
+   */
   on_day_start() {
     this.minimum_daily_value = 0;
     this.maximum_daily_value = 0;
   }
 
+  /**
+   * Called on every tick of the trading day
+   * @returns void
+   */
   on_day_tick() {
     let new_price = sin_equation(this);
     if (new_price > this.maximum_daily_value) {
@@ -211,6 +247,9 @@ class Company {
       this.linked_chart.update();
     }
   }
+  /**
+   * Used to set the "trajectory" of the company, if it should happen. Called at the start of every trading day
+   */
   set_daily_trajectory() {
     this.old_y_axis_offset = Math.round(this.y_axis_offset);
     if (Math.random() > this.trajectory_shift_chance) {
@@ -223,6 +262,10 @@ class Company {
   }
 }
 
+/**
+ * Provided a dictionary, creates a new company and adds it to the appropriate lists
+ * @param {Map} data_dictionary
+ */
 function create_company(data_dictionary) {
   let company = new Company(
     data_dictionary.get("company_name"),
@@ -236,12 +279,18 @@ function create_company(data_dictionary) {
   ticker_to_company[company.ticker] = company;
 }
 
+/**
+ * Creates all the companies using the [company_data] list
+ */
 function build_companies() {
   company_data.forEach((dict_data) =>
     create_company(new Map(Object.entries(dict_data)))
   );
 }
 
+/**
+ * Creates all the stock list entries for all the companies
+ */
 function list_companies() {
   company_list.forEach((company) => create_company_entry(company));
 }
@@ -251,6 +300,10 @@ function list_companies() {
  */
 var entry_number = 0;
 
+/**
+ * Creates a stock list entry for a company and inserts it into the correct div.
+ * @param {Company} company
+ */
 function create_company_entry(company) {
   entry_number++;
 
@@ -287,12 +340,20 @@ function create_company_entry(company) {
   parent_element.appendChild(new_div);
 }
 
+/**
+ * Updates the stock list buttons of all companies
+ */
 function update_all_company_entry_buttons() {
   Object.keys(ticker_to_company).forEach((ticker) =>
     update_company_entry_button(ticker)
   );
 }
 
+/**
+ * Updates the text/selected status of all company entries
+ * @param {string} company_ticker
+ * @returns void
+ */
 function update_company_entry_button(company_ticker) {
   if (!company_ticker) {
     return;
@@ -314,6 +375,9 @@ function update_company_entry_button(company_ticker) {
   }
 }
 
+/**
+ * Makes all companies call their tick method
+ */
 function update_company_prices() {
   company_list.forEach((company) => company.on_day_tick());
 }

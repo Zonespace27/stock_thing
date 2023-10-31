@@ -1,5 +1,6 @@
 // Info buttons
 
+// Const variables for `focused_info_tab` to be set to
 const INFO_SUBTAB_BASIC_READING = "basic_reading";
 const INFO_SUBTAB_GAME_READING = "game_reading";
 const INFO_TAB_BASIC = "basic";
@@ -11,6 +12,9 @@ const INFO_TAB_GAME = "game";
  */
 var focused_info_tab = INFO_TAB_NONE;
 
+/**
+ * Function for when the 1st info button is pressed
+ */
 function info_button_1_press() {
   let element;
   switch (focused_info_tab) {
@@ -45,6 +49,9 @@ As you earn more money, more tools and trading options will become available for
   }
 }
 
+/**
+ * Function for when the 2nd info button is pressed
+ */
 function info_button_2_press() {
   let element;
   switch (focused_info_tab) {
@@ -80,6 +87,9 @@ This doesn't have an indicator and happens gradually over the day, so you will n
   }
 }
 
+/**
+ * Function for when the 3rd info button is pressed
+ */
 function info_button_3_press() {
   let element;
   switch (focused_info_tab) {
@@ -108,6 +118,9 @@ The money and economic faith lost were the primary causes of the Great Depressio
   }
 }
 
+/**
+ * Function for when the 4th info button is pressed
+ */
 function info_button_4_press() {
   let element;
   switch (focused_info_tab) {
@@ -129,6 +142,9 @@ If you're looking to invest in the stock market, the wise option is to speak to 
   }
 }
 
+/**
+ * Function for when the 5th info button is pressed
+ */
 function info_button_5_press() {
   switch (focused_info_tab) {
     case INFO_TAB_BASIC:
@@ -148,6 +164,9 @@ function info_button_5_press() {
 
 // Button helpers
 
+/**
+ * Sets all the information buttons (minus #5) to blank, with button #5 becoming the return button
+ */
 function set_button_return() {
   let element;
   element = document.getElementById("info_button_1");
@@ -162,6 +181,9 @@ function set_button_return() {
   element.textContent = "Return";
 }
 
+/**
+ * Sets the information tab to the main screen
+ */
 function set_tab_none() {
   let element;
   focused_info_tab = INFO_TAB_NONE;
@@ -179,6 +201,9 @@ function set_tab_none() {
   element.innerHTML = "";
 }
 
+/**
+ * Sets the information tab to the basic screen
+ */
 function set_tab_basic() {
   let element;
   focused_info_tab = INFO_TAB_BASIC;
@@ -197,6 +222,9 @@ function set_tab_basic() {
   element.innerHTML = "";
 }
 
+/**
+ * Sets the information tab to the game screen
+ */
 function set_tab_game() {
   let element;
   focused_info_tab = INFO_TAB_GAME;

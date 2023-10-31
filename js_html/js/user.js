@@ -12,10 +12,27 @@ var owned_stocks = {};
  */
 var cash = 1000;
 
+/**
+ * If the user has the predictor upgrade currently enabled
+ */
 var predictor_enabled = false;
+
+/**
+ * The chance for the predictor to work
+ */
 var predictor_chance = 0;
+
+/**
+ * The chance for the predictor to be accurate
+ */
 var predictor_accuracy_chance = 0;
 
+/**
+ * Enables the predictor. If already enabled, sets the predictor values to the existing values or the new ones, whichever are larger.
+ * @param {number} chance
+ * @param {number} accuracy_chance
+ * @returns void
+ */
 function enable_predictor(chance, accuracy_chance) {
   if (predictor_enabled) {
     predictor_chance = Math.max(predictor_chance, chance);
@@ -42,6 +59,11 @@ function enable_predictor(chance, accuracy_chance) {
   });
 }
 
+/**
+ * Increases/decreases player cash
+ * @param {number} amount
+ * @returns void
+ */
 function adjust_cash(amount) {
   if (!amount) {
     return;
@@ -50,11 +72,19 @@ function adjust_cash(amount) {
   update_cash();
 }
 
+/**
+ * Updates the bottom row's cash visual
+ */
 function update_cash() {
   let element = document.getElementById("cash_count");
   element.textContent = `Current Funds: $${pretty_cash()}`;
 }
 
+/**
+ * Adjusts the amount of shares the user has in a company
+ * @param {string} company_ticker
+ * @param {number} amount
+ */
 function adjust_shares(company_ticker, amount = 1) {
   owned_stocks[company_ticker] = Math.max(
     0,
@@ -62,6 +92,12 @@ function adjust_shares(company_ticker, amount = 1) {
   );
 }
 
+/**
+ * Attempts to purchase an amount of shares from a specific company
+ * @param {string} company_ticker
+ * @param {number} amount
+ * @returns void
+ */
 function buy_shares(company_ticker, amount = 1) {
   if (!company_ticker) {
     return;
@@ -74,6 +110,12 @@ function buy_shares(company_ticker, amount = 1) {
   adjust_shares(company_ticker, amount);
 }
 
+/**
+ * Attempts to sell an amount of shares of a specific company
+ * @param {string} company_ticker
+ * @param {number} amount
+ * @returns void
+ */
 function sell_shares(company_ticker, amount = 1) {
   if (!company_ticker) {
     return;
@@ -84,36 +126,6 @@ function sell_shares(company_ticker, amount = 1) {
   }
   adjust_shares(company_ticker, -amount);
   adjust_cash(company.current_price * amount);
-}
-
-function get_shares_value() {
-  let total = 0;
-  Object.keys(owned_stocks).forEach((ticker) => {
-    total += parseFloat(
-      ticker_to_company[ticker].current_price * parseInt(owned_stocks[ticker])
-    );
-  });
-  return total;
-}
-
-function get_share_count() {
-  let total = 0;
-  Object.keys(owned_stocks).forEach((ticker) => {
-    total += parseInt(owned_stocks[ticker]);
-  });
-  return total;
-}
-
-function get_share_difference() {
-  let cash_total = 0;
-  let share_total = 0;
-  Object.keys(owned_stocks).forEach((ticker) => {
-    let share_delta =
-      parseInt(owned_stocks[ticker]) - parseInt(starting_shares[ticker]);
-    share_total += share_delta;
-    cash_total += share_delta * ticker_to_company[ticker].current_price;
-  });
-  return [share_total, cash_total];
 }
 
 // This is what makes everything work; it doesn't need its own file, so it can go here.

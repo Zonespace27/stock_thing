@@ -2,7 +2,14 @@
  * Chart stuff
  */
 
+/**
+ * The default X values of the chart if there aren't data points. Will be naturally overriden as time goes on
+ */
 const xValues = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000];
+
+/**
+ * Maximum amount of data points that can be on a chart at once before the oldest ones are bumped off
+ */
 const max_data_points = 10;
 
 /**
@@ -10,6 +17,13 @@ const max_data_points = 10;
  */
 var charts = {};
 
+/**
+ * Creates a new chart object and inserts it into `charts`
+ * @param {string} chart_id
+ * @param {string} ticker
+ * @param {boolean} primary_ticker
+ * @returns void
+ */
 function init_chart(chart_id, ticker = "", primary_ticker = false) {
   let new_chart = new Chart(chart_id, {
     type: "line",
@@ -57,6 +71,11 @@ function init_chart(chart_id, ticker = "", primary_ticker = false) {
   }
 }
 
+/**
+ * Given a company object, will return a value of what the company should be worth using a sin wave and some randomization.
+ * @param {Company} company
+ * @returns integer
+ */
 function sin_equation(company) {
   company.sin_value += company.sin_progression;
   return Math.abs(
