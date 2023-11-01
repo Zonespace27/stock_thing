@@ -100,16 +100,7 @@ function parse_cookie_chartdata(chart_data = "") {
  * Resets the game to the starting day and information
  */
 function new_save_press() {
-  current_day = 18;
-  current_month = "October";
-  current_year = 2023;
-  cash = 1000;
-  owned_stocks = {};
-  company_list.forEach((company) => {
-    owned_stocks[company.ticker] = 0;
-  });
-  set_save_load_menu(false);
-  // add smth for upgrades here
+  location.reload()
 }
 
 /**
