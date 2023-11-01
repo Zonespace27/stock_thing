@@ -82,12 +82,44 @@ const company_data = [
   },
   {
     // cheap stock, not a lot of variance
-    company_name: "BargainBins Ltd.",
+    company_name: "BargainBin Ltd.",
     ticker: "BGBN",
     y_axis_offset: 50,
     sin_multiplier: 3.5,
     period_divider: 0.8,
     sin_progression: 0.15,
+  },
+  {
+    company_name: "Kepler Inc.",
+    ticker: "KR",
+    y_axis_offset: 75,
+    sin_multiplier: 4,
+    period_divider: 0.6,
+    sin_progression: 0.25,
+  },
+  {
+    company_name: "Worstsell",
+    ticker: "WSL",
+    y_axis_offset: 380,
+    sin_multiplier: 120,
+    period_divider: 1.9,
+    sin_progression: 0.5,
+  },
+  {
+    company_name: "Amerisoft",
+    ticker: "AST",
+    y_axis_offset: 120,
+    sin_multiplier: 110,
+    period_divider: 2.9,
+    sin_progression: 0.3,
+  },
+  {
+    company_name: "Blinder Blumpin Paper",
+    ticker: "BBP",
+    y_axis_offset: 700,
+    sin_multiplier: 79,
+    period_divider: 3,
+    sin_progression: 2,
   },
 ];
 
